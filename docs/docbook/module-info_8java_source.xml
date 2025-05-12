@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_module-info_8java_source" xml:lang="es">
+<title>module-info.java</title>
+<indexterm><primary>src/main/kotlin/module-info.java</primary></indexterm>
+Ir a la documentación de este archivo.<programlisting linenumbering="unnumbered"><anchor xml:id="_module-info_8java_source_1l00001"/>00001 module&#32;org.surveycolombia.renombrar&#32;{
+<anchor xml:id="_module-info_8java_source_1l00002"/>00002 &#32;&#32;&#32;&#32;requires&#32;javafx.controls;
+<anchor xml:id="_module-info_8java_source_1l00003"/>00003 &#32;&#32;&#32;&#32;requires&#32;javafx.fxml;
+<anchor xml:id="_module-info_8java_source_1l00004"/>00004 &#32;&#32;&#32;&#32;requires&#32;kotlin.stdlib;
+<anchor xml:id="_module-info_8java_source_1l00005"/>00005 
+<anchor xml:id="_module-info_8java_source_1l00006"/>00006 &#32;&#32;&#32;&#32;requires&#32;org.controlsfx.controls;
+<anchor xml:id="_module-info_8java_source_1l00007"/>00007 &#32;&#32;&#32;&#32;requires&#32;org.kordamp.bootstrapfx.core;
+<anchor xml:id="_module-info_8java_source_1l00008"/>00008 
+<anchor xml:id="_module-info_8java_source_1l00009"/>00009 &#32;&#32;&#32;&#32;opens&#32;org.surveycolombia.renombrar&#32;to&#32;javafx.fxml;
+<anchor xml:id="_module-info_8java_source_1l00010"/>00010 &#32;&#32;&#32;&#32;exports&#32;org.surveycolombia.renombrar;
+<anchor xml:id="_module-info_8java_source_1l00011"/>00011 }
+</programlisting></section>

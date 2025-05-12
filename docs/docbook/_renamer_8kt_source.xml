@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="__renamer_8kt_source" xml:lang="es">
+<title>Renamer.kt</title>
+<indexterm><primary>src/main/kotlin/org/surveycolombia/renombrar/Renamer.kt</primary></indexterm>
+Ir a la documentación de este archivo.<programlisting linenumbering="unnumbered"><anchor xml:id="__renamer_8kt_source_1l00001"/>00001 /***************************************************************************
+<anchor xml:id="__renamer_8kt_source_1l00002"/>00002 &#32;*&#32;Renombrador&#32;de&#32;Archivos
+<anchor xml:id="__renamer_8kt_source_1l00003"/>00003 &#32;*&#32;--------------------
+<anchor xml:id="__renamer_8kt_source_1l00004"/>00004 &#32;*&#32;Copyright&#32;(C)&#32;2025&#32;by&#32;David&#32;Andres&#32;Gonzalez&#32;Gutierrez
+<anchor xml:id="__renamer_8kt_source_1l00005"/>00005 &#32;*&#32;Email:&#32;surveycolombia@gmail.com
+<anchor xml:id="__renamer_8kt_source_1l00006"/>00006 &#32;*
+<anchor xml:id="__renamer_8kt_source_1l00007"/>00007 &#32;*&#32;Este&#32;software&#32;se&#32;distribuye&#32;bajo&#32;la&#32;licencia&#32;GNU&#32;GPL&#32;v3&#32;con&#32;restricciones&#32;adicionales.
+<anchor xml:id="__renamer_8kt_source_1l00008"/>00008 &#32;*&#32;Puedes&#32;usarlo,&#32;modificarlo&#32;y&#32;distribuirlo&#32;libremente,&#32;siempre&#32;y&#32;cuando&#32;se&#32;mantenga
+<anchor xml:id="__renamer_8kt_source_1l00009"/>00009 &#32;*&#32;este&#32;aviso&#32;de&#32;copyright&#32;y&#32;la&#32;licencia&#32;original.
+<anchor xml:id="__renamer_8kt_source_1l00010"/>00010 &#32;*
+<anchor xml:id="__renamer_8kt_source_1l00011"/>00011 &#32;*&#32;Derechos&#32;de&#32;Autor:
+<anchor xml:id="__renamer_8kt_source_1l00012"/>00012 &#32;*&#32;El&#32;autor&#32;mantiene&#32;todos&#32;los&#32;derechos&#32;intelectuales&#32;sobre&#32;el&#32;software.
+<anchor xml:id="__renamer_8kt_source_1l00013"/>00013 &#32;*&#32;Cualquier&#32;modificación&#32;o&#32;redistribución&#32;debe&#32;reconocer&#32;la&#32;autoría&#32;original.
+<anchor xml:id="__renamer_8kt_source_1l00014"/>00014 &#32;*
+<anchor xml:id="__renamer_8kt_source_1l00015"/>00015 &#32;*&#32;Restricción&#32;Comercial:
+<anchor xml:id="__renamer_8kt_source_1l00016"/>00016 &#32;*&#32;Queda&#32;prohibido&#32;el&#32;uso&#32;comercial&#32;de&#32;este&#32;software&#32;sin&#32;la&#32;autorización&#32;expresa
+<anchor xml:id="__renamer_8kt_source_1l00017"/>00017 &#32;*&#32;y&#32;por&#32;escrito&#32;del&#32;autor.
+<anchor xml:id="__renamer_8kt_source_1l00018"/>00018 &#32;*
+<anchor xml:id="__renamer_8kt_source_1l00019"/>00019 &#32;*&#32;GNU&#32;General&#32;Public&#32;License&#32;v3.0:
+<anchor xml:id="__renamer_8kt_source_1l00020"/>00020 &#32;*&#32;https://www.gnu.org/licenses/gpl-3.0.html
+<anchor xml:id="__renamer_8kt_source_1l00021"/>00021 &#32;***************************************************************************/
+<anchor xml:id="__renamer_8kt_source_1l00022"/>00022 /**
+<anchor xml:id="__renamer_8kt_source_1l00023"/>00023 &#32;*&#32;@file&#32;Rename.kt
+<anchor xml:id="__renamer_8kt_source_1l00024"/>00024 &#32;*&#32;@brief&#32;Punto&#32;de&#32;entrada&#32;de&#32;la&#32;aplicación&#32;JavaFX.
+<anchor xml:id="__renamer_8kt_source_1l00025"/>00025 &#32;*/
+<anchor xml:id="__renamer_8kt_source_1l00026"/>00026 
+<anchor xml:id="__renamer_8kt_source_1l00027"/>00027 package&#32;org.surveycolombia.renombrar
+<anchor xml:id="__renamer_8kt_source_1l00028"/>00028 
+<anchor xml:id="__renamer_8kt_source_1l00029"/>00029 import&#32;javafx.application.Application
+<anchor xml:id="__renamer_8kt_source_1l00030"/>00030 import&#32;javafx.fxml.FXMLLoader
+<anchor xml:id="__renamer_8kt_source_1l00031"/>00031 import&#32;javafx.scene.Scene
+<anchor xml:id="__renamer_8kt_source_1l00032"/>00032 import&#32;javafx.scene.image.Image
+<anchor xml:id="__renamer_8kt_source_1l00033"/>00033 import&#32;javafx.stage.Stage
+<anchor xml:id="__renamer_8kt_source_1l00034"/>00034 
+<anchor xml:id="__renamer_8kt_source_1l00035"/>00035 /**
+<anchor xml:id="__renamer_8kt_source_1l00036"/>00036 &#32;*&#32;@class&#32;Rename
+<anchor xml:id="__renamer_8kt_source_1l00037"/>00037 &#32;*&#32;@brief&#32;Clase&#32;principal&#32;que&#32;inicia&#32;la&#32;aplicación&#32;JavaFX.
+<anchor xml:id="__renamer_8kt_source_1l00038"/>00038 &#32;*
+<anchor xml:id="__renamer_8kt_source_1l00039"/>00039 &#32;*&#32;Configura:
+<anchor xml:id="__renamer_8kt_source_1l00040"/>00040 &#32;*&#32;-&#32;La&#32;ventana&#32;principal
+<anchor xml:id="__renamer_8kt_source_1l00041"/>00041 &#32;*&#32;-&#32;La&#32;escena&#32;con&#32;el&#32;FXML
+<anchor xml:id="__renamer_8kt_source_1l00042"/>00042 &#32;*&#32;-&#32;El&#32;icono&#32;de&#32;la&#32;aplicación
+<anchor xml:id="__renamer_8kt_source_1l00043"/>00043 &#32;*/
+<anchor xml:id="__renamer_8kt_source_1l00044"/>00044 
+<anchor xml:id="__renamer_8kt_source_1l00045"/>00045 class&#32;Rename&#32;:&#32;Application()&#32;{
+<anchor xml:id="__renamer_8kt_source_1l00046"/>00046 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_8kt_source_1l00047"/>00047 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;start
+<anchor xml:id="__renamer_8kt_source_1l00048"/>00048 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Método&#32;principal&#32;de&#32;JavaFX.
+<anchor xml:id="__renamer_8kt_source_1l00049"/>00049 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;stage&#32;Ventana&#32;principal&#32;proporcionada&#32;por&#32;JavaFX.
+<anchor xml:id="__renamer_8kt_source_1l00050"/>00050 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_8kt_source_1l00051"/>00051 
+<anchor xml:id="__renamer_8kt_source_1l00052"/>00052 &#32;&#32;&#32;&#32;override&#32;fun&#32;start(stage:&#32;Stage)&#32;{
+<anchor xml:id="__renamer_8kt_source_1l00053"/>00053 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;fxmlLoader&#32;=&#32;FXMLLoader(Rename::class.java.getResource(&quot;renamer_view.fxml&quot;))
+<anchor xml:id="__renamer_8kt_source_1l00054"/>00054 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;scene&#32;=&#32;Scene(fxmlLoader.load(),&#32;400.0,&#32;650.0)
+<anchor xml:id="__renamer_8kt_source_1l00055"/>00055 
+<anchor xml:id="__renamer_8kt_source_1l00056"/>00056 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;stage.title&#32;=&#32;&quot;[&#32;R&#32;E&#32;N&#32;O&#32;M&#32;B&#32;R&#32;A&#32;R&#32;]&quot;
+<anchor xml:id="__renamer_8kt_source_1l00057"/>00057 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;icon&#32;=&#32;Image(javaClass.getResourceAsStream(&quot;/app_icon.png&quot;))
+<anchor xml:id="__renamer_8kt_source_1l00058"/>00058 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;stage.icons.add(icon)
+<anchor xml:id="__renamer_8kt_source_1l00059"/>00059 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;stage.scene&#32;=&#32;scene
+<anchor xml:id="__renamer_8kt_source_1l00060"/>00060 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;stage.show()
+<anchor xml:id="__renamer_8kt_source_1l00061"/>00061 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_8kt_source_1l00062"/>00062 }
+<anchor xml:id="__renamer_8kt_source_1l00063"/>00063 
+<anchor xml:id="__renamer_8kt_source_1l00064"/>00064 /**
+<anchor xml:id="__renamer_8kt_source_1l00065"/>00065 &#32;*&#32;@fn&#32;main
+<anchor xml:id="__renamer_8kt_source_1l00066"/>00066 &#32;*&#32;@brief&#32;Punto&#32;de&#32;entrada&#32;de&#32;la&#32;aplicación.
+<anchor xml:id="__renamer_8kt_source_1l00067"/>00067 &#32;*/
+<anchor xml:id="__renamer_8kt_source_1l00068"/>00068 
+<anchor xml:id="__renamer_8kt_source_1l00069"/>00069 fun&#32;main()&#32;{
+<anchor xml:id="__renamer_8kt_source_1l00070"/>00070 &#32;&#32;&#32;&#32;Application.launch(Rename::class.java)
+<anchor xml:id="__renamer_8kt_source_1l00071"/>00071 }
+</programlisting></section>

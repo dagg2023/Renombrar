@@ -1,0 +1,520 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="__renamer_controller_8kt_source" xml:lang="es">
+<title>RenamerController.kt</title>
+<indexterm><primary>src/main/kotlin/org/surveycolombia/renombrar/RenamerController.kt</primary></indexterm>
+Ir a la documentación de este archivo.<programlisting linenumbering="unnumbered"><anchor xml:id="__renamer_controller_8kt_source_1l00001"/>00001 /***************************************************************************
+<anchor xml:id="__renamer_controller_8kt_source_1l00002"/>00002 &#32;*&#32;Renombrador&#32;de&#32;Archivos
+<anchor xml:id="__renamer_controller_8kt_source_1l00003"/>00003 &#32;*&#32;--------------------
+<anchor xml:id="__renamer_controller_8kt_source_1l00004"/>00004 &#32;*&#32;Copyright&#32;(C)&#32;2025&#32;by&#32;David&#32;Andres&#32;Gonzalez&#32;Gutierrez
+<anchor xml:id="__renamer_controller_8kt_source_1l00005"/>00005 &#32;*&#32;Email:&#32;surveycolombia@gmail.com
+<anchor xml:id="__renamer_controller_8kt_source_1l00006"/>00006 &#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00007"/>00007 &#32;*&#32;Este&#32;software&#32;se&#32;distribuye&#32;bajo&#32;la&#32;licencia&#32;GNU&#32;GPL&#32;v3&#32;con&#32;restricciones&#32;adicionales.
+<anchor xml:id="__renamer_controller_8kt_source_1l00008"/>00008 &#32;*&#32;Puedes&#32;usarlo,&#32;modificarlo&#32;y&#32;distribuirlo&#32;libremente,&#32;siempre&#32;y&#32;cuando&#32;se&#32;mantenga
+<anchor xml:id="__renamer_controller_8kt_source_1l00009"/>00009 &#32;*&#32;este&#32;aviso&#32;de&#32;copyright&#32;y&#32;la&#32;licencia&#32;original.
+<anchor xml:id="__renamer_controller_8kt_source_1l00010"/>00010 &#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00011"/>00011 &#32;*&#32;Derechos&#32;de&#32;Autor:
+<anchor xml:id="__renamer_controller_8kt_source_1l00012"/>00012 &#32;*&#32;El&#32;autor&#32;mantiene&#32;todos&#32;los&#32;derechos&#32;intelectuales&#32;sobre&#32;el&#32;software.
+<anchor xml:id="__renamer_controller_8kt_source_1l00013"/>00013 &#32;*&#32;Cualquier&#32;modificación&#32;o&#32;redistribución&#32;debe&#32;reconocer&#32;la&#32;autoría&#32;original.
+<anchor xml:id="__renamer_controller_8kt_source_1l00014"/>00014 &#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00015"/>00015 &#32;*&#32;Restricción&#32;Comercial:
+<anchor xml:id="__renamer_controller_8kt_source_1l00016"/>00016 &#32;*&#32;Queda&#32;prohibido&#32;el&#32;uso&#32;comercial&#32;de&#32;este&#32;software&#32;sin&#32;la&#32;autorización&#32;expresa
+<anchor xml:id="__renamer_controller_8kt_source_1l00017"/>00017 &#32;*&#32;y&#32;por&#32;escrito&#32;del&#32;autor.
+<anchor xml:id="__renamer_controller_8kt_source_1l00018"/>00018 &#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00019"/>00019 &#32;*&#32;GNU&#32;General&#32;Public&#32;License&#32;v3.0:
+<anchor xml:id="__renamer_controller_8kt_source_1l00020"/>00020 &#32;*&#32;https://www.gnu.org/licenses/gpl-3.0.html
+<anchor xml:id="__renamer_controller_8kt_source_1l00021"/>00021 &#32;***************************************************************************/
+<anchor xml:id="__renamer_controller_8kt_source_1l00022"/>00022 
+<anchor xml:id="__renamer_controller_8kt_source_1l00023"/>00023 /**
+<anchor xml:id="__renamer_controller_8kt_source_1l00024"/>00024 &#32;*&#32;@file&#32;RenamerController.kt
+<anchor xml:id="__renamer_controller_8kt_source_1l00025"/>00025 &#32;*&#32;@brief&#32;Controlador&#32;principal&#32;para&#32;la&#32;interfaz&#32;de&#32;renombrado&#32;de&#32;archivos/carpetas.
+<anchor xml:id="__renamer_controller_8kt_source_1l00026"/>00026 &#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00027"/>00027 &#32;*&#32;@author&#32;David&#32;Andres&#32;Gonzalez&#32;Gutierrez
+<anchor xml:id="__renamer_controller_8kt_source_1l00028"/>00028 &#32;*&#32;@copyright&#32;Survey&#32;Colombia&#32;2025&#32;(Licencia&#32;GNU&#32;GPL&#32;v3)
+<anchor xml:id="__renamer_controller_8kt_source_1l00029"/>00029 &#32;*&#32;@version&#32;1.0
+<anchor xml:id="__renamer_controller_8kt_source_1l00030"/>00030 &#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00031"/>00031 
+<anchor xml:id="__renamer_controller_8kt_source_1l00032"/>00032 package&#32;org.surveycolombia.renombrar
+<anchor xml:id="__renamer_controller_8kt_source_1l00033"/>00033 
+<anchor xml:id="__renamer_controller_8kt_source_1l00034"/>00034 import&#32;javafx.beans.value.ObservableValue
+<anchor xml:id="__renamer_controller_8kt_source_1l00035"/>00035 import&#32;javafx.fxml.FXML
+<anchor xml:id="__renamer_controller_8kt_source_1l00036"/>00036 import&#32;javafx.scene.control.*
+<anchor xml:id="__renamer_controller_8kt_source_1l00037"/>00037 import&#32;javafx.scene.layout.VBox
+<anchor xml:id="__renamer_controller_8kt_source_1l00038"/>00038 import&#32;javafx.stage.DirectoryChooser
+<anchor xml:id="__renamer_controller_8kt_source_1l00039"/>00039 import&#32;javafx.stage.FileChooser
+<anchor xml:id="__renamer_controller_8kt_source_1l00040"/>00040 import&#32;javafx.stage.Stage
+<anchor xml:id="__renamer_controller_8kt_source_1l00041"/>00041 import&#32;java.io.*
+<anchor xml:id="__renamer_controller_8kt_source_1l00042"/>00042 import&#32;java.nio.file.Files
+<anchor xml:id="__renamer_controller_8kt_source_1l00043"/>00043 
+<anchor xml:id="__renamer_controller_8kt_source_1l00044"/>00044 /**
+<anchor xml:id="__renamer_controller_8kt_source_1l00045"/>00045 &#32;*&#32;@class&#32;RenamerController
+<anchor xml:id="__renamer_controller_8kt_source_1l00046"/>00046 &#32;*&#32;@brief&#32;Controlador&#32;FXML&#32;para&#32;la&#32;operación&#32;de&#32;renombrado&#32;masivo.
+<anchor xml:id="__renamer_controller_8kt_source_1l00047"/>00047 &#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00048"/>00048 &#32;*&#32;Maneja:
+<anchor xml:id="__renamer_controller_8kt_source_1l00049"/>00049 &#32;*&#32;-&#32;Selección&#32;de&#32;directorios&#32;raíz
+<anchor xml:id="__renamer_controller_8kt_source_1l00050"/>00050 &#32;*&#32;-&#32;Generación&#32;y&#32;carga&#32;de&#32;archivos&#32;CSV
+<anchor xml:id="__renamer_controller_8kt_source_1l00051"/>00051 &#32;*&#32;-&#32;Renombrado&#32;de&#32;carpetas&#32;(basado&#32;en&#32;CSV)&#32;y&#32;archivos&#32;(basado&#32;en&#32;sufijos)
+<anchor xml:id="__renamer_controller_8kt_source_1l00052"/>00052 &#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00053"/>00053 
+<anchor xml:id="__renamer_controller_8kt_source_1l00054"/>00054 class&#32;RenamerController&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00055"/>00055 &#32;&#32;&#32;&#32;//&#32;===&#32;Componentes&#32;FXML&#32;===
+<anchor xml:id="__renamer_controller_8kt_source_1l00056"/>00056 &#32;&#32;&#32;&#32;@FXML&#32;private&#32;lateinit&#32;var&#32;&#32;csvSection:&#32;VBox
+<anchor xml:id="__renamer_controller_8kt_source_1l00057"/>00057 &#32;&#32;&#32;&#32;@FXML&#32;private&#32;lateinit&#32;var&#32;buscarCarpeta:&#32;Label
+<anchor xml:id="__renamer_controller_8kt_source_1l00058"/>00058 &#32;&#32;&#32;&#32;@FXML&#32;private&#32;lateinit&#32;var&#32;btnGenerarCSV:&#32;Button
+<anchor xml:id="__renamer_controller_8kt_source_1l00059"/>00059 &#32;&#32;&#32;&#32;@FXML&#32;private&#32;lateinit&#32;var&#32;cargarCSV:&#32;Label
+<anchor xml:id="__renamer_controller_8kt_source_1l00060"/>00060 &#32;&#32;&#32;&#32;@FXML&#32;private&#32;lateinit&#32;var&#32;btnCargarCSV:&#32;Button
+<anchor xml:id="__renamer_controller_8kt_source_1l00061"/>00061 &#32;&#32;&#32;&#32;@FXML&#32;private&#32;lateinit&#32;var&#32;btnRenamer:&#32;Button
+<anchor xml:id="__renamer_controller_8kt_source_1l00062"/>00062 &#32;&#32;&#32;&#32;@FXML&#32;private&#32;lateinit&#32;var&#32;choiceColumnOldName:&#32;ChoiceBox&lt;String&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00063"/>00063 &#32;&#32;&#32;&#32;@FXML&#32;private&#32;lateinit&#32;var&#32;choiceColumnNewName:&#32;ChoiceBox&lt;String&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00064"/>00064 &#32;&#32;&#32;&#32;@FXML&#32;private&#32;lateinit&#32;var&#32;chkRenombrarCarpetas:&#32;CheckBox
+<anchor xml:id="__renamer_controller_8kt_source_1l00065"/>00065 &#32;&#32;&#32;&#32;@FXML&#32;private&#32;lateinit&#32;var&#32;chkRenombrarArchivos:&#32;CheckBox
+<anchor xml:id="__renamer_controller_8kt_source_1l00066"/>00066 
+<anchor xml:id="__renamer_controller_8kt_source_1l00067"/>00067 &#32;&#32;&#32;&#32;//&#32;===&#32;Variables&#32;de&#32;estado&#32;===
+<anchor xml:id="__renamer_controller_8kt_source_1l00068"/>00068 &#32;&#32;&#32;&#32;private&#32;var&#32;selectedDirectory:&#32;File?&#32;=&#32;null
+<anchor xml:id="__renamer_controller_8kt_source_1l00069"/>00069 &#32;&#32;&#32;&#32;private&#32;var&#32;selectedCsvFile:&#32;File?&#32;=&#32;null
+<anchor xml:id="__renamer_controller_8kt_source_1l00070"/>00070 &#32;&#32;&#32;&#32;private&#32;val&#32;nameMappings&#32;=&#32;mutableMapOf&lt;String,&#32;String&gt;()
+<anchor xml:id="__renamer_controller_8kt_source_1l00071"/>00071 
+<anchor xml:id="__renamer_controller_8kt_source_1l00072"/>00072 
+<anchor xml:id="__renamer_controller_8kt_source_1l00073"/>00073 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00074"/>00074 &#32;&#32;&#32;&#32;&#32;*&#32;@var&#32;fileSuffixes
+<anchor xml:id="__renamer_controller_8kt_source_1l00075"/>00075 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Lista&#32;de&#32;sufijos&#32;para&#32;renombrado&#32;automático&#32;de&#32;archivos.
+<anchor xml:id="__renamer_controller_8kt_source_1l00076"/>00076 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00077"/>00077 &#32;&#32;&#32;&#32;&#32;*&#32;Ordenados&#32;por&#32;prioridad&#32;(de&#32;más&#32;largo&#32;a&#32;más&#32;corto).
+<anchor xml:id="__renamer_controller_8kt_source_1l00078"/>00078 &#32;&#32;&#32;&#32;&#32;*&#32;Formatos:
+<anchor xml:id="__renamer_controller_8kt_source_1l00079"/>00079 &#32;&#32;&#32;&#32;&#32;*&#32;-&#32;Compuestos:&#32;`_LETRA_SUFIJO`&#32;(ej:&#32;`_A_FAC`)
+<anchor xml:id="__renamer_controller_8kt_source_1l00080"/>00080 &#32;&#32;&#32;&#32;&#32;*&#32;-&#32;Simples:&#32;`_SUFIJO`&#32;(ej:&#32;`_AD`)
+<anchor xml:id="__renamer_controller_8kt_source_1l00081"/>00081 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00082"/>00082 &#32;&#32;&#32;&#32;private&#32;val&#32;fileSuffixes&#32;by&#32;lazy&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00083"/>00083 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;baseSuffixes&#32;=&#32;listOf(
+<anchor xml:id="__renamer_controller_8kt_source_1l00084"/>00084 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;_AD&quot;,&#32;&quot;_EP&quot;,&#32;&quot;_SJ&quot;,&#32;&quot;_DP&quot;,&#32;&quot;_DI&quot;,&#32;&quot;_FAC&quot;,&#32;&quot;_ACA&quot;,&#32;&quot;_EST&quot;,&#32;&quot;_COC&quot;,&#32;&quot;_BAN&quot;,&#32;&quot;_SIN_BAN&quot;,
+<anchor xml:id="__renamer_controller_8kt_source_1l00085"/>00085 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;_SIN_COC&quot;,&#32;&quot;_CER&quot;,&#32;&quot;_LOTE&quot;,&#32;&quot;_CROQUIS&quot;,&#32;&quot;_ANEXO&quot;,&#32;&quot;_PRI&quot;,&#32;&quot;_OTRO&quot;,&#32;&quot;_NC&quot;
+<anchor xml:id="__renamer_controller_8kt_source_1l00086"/>00086 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00087"/>00087 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;letterSuffixes&#32;=&#32;listOf(&quot;_FAC&quot;,&#32;&quot;_ACA&quot;,&#32;&quot;_EST&quot;,&#32;&quot;_COC&quot;,&#32;&quot;_BAN&quot;,&#32;&quot;_NC&quot;,&#32;&quot;_SIN_BAN&quot;,&#32;&quot;_SIN_COC&quot;,&#32;&quot;_CER&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00088"/>00088 
+<anchor xml:id="__renamer_controller_8kt_source_1l00089"/>00089 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Primero&#32;los&#32;sufijos&#32;compuestos&#32;(con&#32;letra)
+<anchor xml:id="__renamer_controller_8kt_source_1l00090"/>00090 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;compoundSuffixes&#32;=&#32;(&apos;A&apos;..&apos;Z&apos;).flatMap&#32;{&#32;letter&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00091"/>00091 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;letterSuffixes.map&#32;{&#32;suffix&#32;-&gt;&#32;&quot;_${letter}$suffix&quot;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00092"/>00092 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00093"/>00093 
+<anchor xml:id="__renamer_controller_8kt_source_1l00094"/>00094 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Luego&#32;los&#32;sufijos&#32;simples&#32;(ordenados&#32;de&#32;más&#32;largo&#32;a&#32;más&#32;corto)
+<anchor xml:id="__renamer_controller_8kt_source_1l00095"/>00095 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;simpleSuffixes&#32;=&#32;baseSuffixes.sortedByDescending&#32;{&#32;it.length&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00096"/>00096 
+<anchor xml:id="__renamer_controller_8kt_source_1l00097"/>00097 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;compoundSuffixes&#32;+&#32;simpleSuffixes
+<anchor xml:id="__renamer_controller_8kt_source_1l00098"/>00098 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00099"/>00099 
+<anchor xml:id="__renamer_controller_8kt_source_1l00100"/>00100 &#32;&#32;&#32;&#32;//&#32;===&#32;Métodos&#32;FXML&#32;===
+<anchor xml:id="__renamer_controller_8kt_source_1l00101"/>00101 
+<anchor xml:id="__renamer_controller_8kt_source_1l00102"/>00102 
+<anchor xml:id="__renamer_controller_8kt_source_1l00103"/>00103 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00104"/>00104 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;initialize
+<anchor xml:id="__renamer_controller_8kt_source_1l00105"/>00105 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Inicializa&#32;el&#32;estado&#32;de&#32;la&#32;interfaz&#32;gráfica.
+<anchor xml:id="__renamer_controller_8kt_source_1l00106"/>00106 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00107"/>00107 &#32;&#32;&#32;&#32;&#32;*&#32;Configura:
+<anchor xml:id="__renamer_controller_8kt_source_1l00108"/>00108 &#32;&#32;&#32;&#32;&#32;*&#32;-&#32;Valores&#32;iniciales&#32;de&#32;CheckBox
+<anchor xml:id="__renamer_controller_8kt_source_1l00109"/>00109 &#32;&#32;&#32;&#32;&#32;*&#32;-&#32;Listeners&#32;para&#32;cambios&#32;en&#32;selecciones
+<anchor xml:id="__renamer_controller_8kt_source_1l00110"/>00110 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00111"/>00111 &#32;&#32;&#32;&#32;@FXML
+<anchor xml:id="__renamer_controller_8kt_source_1l00112"/>00112 &#32;&#32;&#32;&#32;private&#32;fun&#32;initialize()&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00113"/>00113 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Configuración&#32;inicial
+<anchor xml:id="__renamer_controller_8kt_source_1l00114"/>00114 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;btnCargarCSV.isDisable&#32;=&#32;true
+<anchor xml:id="__renamer_controller_8kt_source_1l00115"/>00115 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;btnRenamer.isDisable&#32;=&#32;true
+<anchor xml:id="__renamer_controller_8kt_source_1l00116"/>00116 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;choiceColumnNewName.isDisable&#32;=&#32;true
+<anchor xml:id="__renamer_controller_8kt_source_1l00117"/>00117 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;choiceColumnOldName.isDisable&#32;=&#32;true
+<anchor xml:id="__renamer_controller_8kt_source_1l00118"/>00118 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;btnGenerarCSV.isDisable&#32;=&#32;true
+<anchor xml:id="__renamer_controller_8kt_source_1l00119"/>00119 
+<anchor xml:id="__renamer_controller_8kt_source_1l00120"/>00120 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Configuración&#32;inicial&#32;de&#32;los&#32;CheckBox
+<anchor xml:id="__renamer_controller_8kt_source_1l00121"/>00121 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;chkRenombrarArchivos.isSelected&#32;=&#32;false
+<anchor xml:id="__renamer_controller_8kt_source_1l00122"/>00122 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;chkRenombrarCarpetas.isSelected&#32;=&#32;true
+<anchor xml:id="__renamer_controller_8kt_source_1l00123"/>00123 
+<anchor xml:id="__renamer_controller_8kt_source_1l00124"/>00124 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Listener&#32;para&#32;deshabilitar&#32;botón&#32;si&#32;no&#32;hay&#32;ninguna&#32;opción&#32;seleccionada
+<anchor xml:id="__renamer_controller_8kt_source_1l00125"/>00125 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;checkListener&#32;=&#32;{_:&#32;ObservableValue&lt;out&#32;Boolean&gt;,&#32;_:&#32;Boolean,&#32;_:&#32;Boolean&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00126"/>00126 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;updateUIState()
+<anchor xml:id="__renamer_controller_8kt_source_1l00127"/>00127 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00128"/>00128 
+<anchor xml:id="__renamer_controller_8kt_source_1l00129"/>00129 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;chkRenombrarCarpetas.selectedProperty().addListener(checkListener)
+<anchor xml:id="__renamer_controller_8kt_source_1l00130"/>00130 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;chkRenombrarArchivos.selectedProperty().addListener(checkListener)
+<anchor xml:id="__renamer_controller_8kt_source_1l00131"/>00131 
+<anchor xml:id="__renamer_controller_8kt_source_1l00132"/>00132 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00133"/>00133 
+<anchor xml:id="__renamer_controller_8kt_source_1l00134"/>00134 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00135"/>00135 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;updateUIState
+<anchor xml:id="__renamer_controller_8kt_source_1l00136"/>00136 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Actualiza&#32;el&#32;estado&#32;de&#32;los&#32;componentes&#32;según&#32;las&#32;selecciones&#32;del&#32;usuario.
+<anchor xml:id="__renamer_controller_8kt_source_1l00137"/>00137 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00138"/>00138 
+<anchor xml:id="__renamer_controller_8kt_source_1l00139"/>00139 &#32;&#32;&#32;&#32;private&#32;fun&#32;updateUIState(){
+<anchor xml:id="__renamer_controller_8kt_source_1l00140"/>00140 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;soloArchivos&#32;=&#32;chkRenombrarArchivos.isSelected&#32;&amp;&amp;&#32;!chkRenombrarCarpetas.isSelected
+<anchor xml:id="__renamer_controller_8kt_source_1l00141"/>00141 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;soloCarpetas&#32;=&#32;!chkRenombrarArchivos.isSelected&#32;&amp;&amp;&#32;chkRenombrarCarpetas.isSelected
+<anchor xml:id="__renamer_controller_8kt_source_1l00142"/>00142 
+<anchor xml:id="__renamer_controller_8kt_source_1l00143"/>00143 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Mostrar/ocultar&#32;sección&#32;CSV&#32;según&#32;sea&#32;necesario
+<anchor xml:id="__renamer_controller_8kt_source_1l00144"/>00144 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;csvSection.isVisible&#32;=&#32;!soloArchivos
+<anchor xml:id="__renamer_controller_8kt_source_1l00145"/>00145 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;csvSection.isManaged&#32;=&#32;!soloArchivos
+<anchor xml:id="__renamer_controller_8kt_source_1l00146"/>00146 
+<anchor xml:id="__renamer_controller_8kt_source_1l00147"/>00147 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Habilitar&#32;botones&#32;según&#32;el&#32;estado
+<anchor xml:id="__renamer_controller_8kt_source_1l00148"/>00148 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;btnGenerarCSV.isDisable&#32;=&#32;selectedDirectory&#32;==&#32;null
+<anchor xml:id="__renamer_controller_8kt_source_1l00149"/>00149 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;btnCargarCSV.isDisable&#32;=&#32;selectedDirectory&#32;==&#32;null&#32;||&#32;soloArchivos
+<anchor xml:id="__renamer_controller_8kt_source_1l00150"/>00150 
+<anchor xml:id="__renamer_controller_8kt_source_1l00151"/>00151 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;btnRenamer.isDisable&#32;=&#32;when&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00152"/>00152 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;selectedDirectory&#32;==&#32;null&#32;-&gt;&#32;true
+<anchor xml:id="__renamer_controller_8kt_source_1l00153"/>00153 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;soloArchivos&#32;-&gt;&#32;false
+<anchor xml:id="__renamer_controller_8kt_source_1l00154"/>00154 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;chkRenombrarCarpetas.isSelected&#32;-&gt;&#32;selectedCsvFile&#32;==&#32;null&#32;||
+<anchor xml:id="__renamer_controller_8kt_source_1l00155"/>00155 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;choiceColumnOldName.selectionModel.isEmpty&#32;||
+<anchor xml:id="__renamer_controller_8kt_source_1l00156"/>00156 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;choiceColumnNewName.selectionModel.isEmpty
+<anchor xml:id="__renamer_controller_8kt_source_1l00157"/>00157 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;else&#32;-&gt;&#32;false
+<anchor xml:id="__renamer_controller_8kt_source_1l00158"/>00158 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00159"/>00159 
+<anchor xml:id="__renamer_controller_8kt_source_1l00160"/>00160 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00161"/>00161 
+<anchor xml:id="__renamer_controller_8kt_source_1l00162"/>00162 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00163"/>00163 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;buscarCarpetaRaizClick
+<anchor xml:id="__renamer_controller_8kt_source_1l00164"/>00164 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Muestra&#32;un&#32;diálogo&#32;para&#32;seleccionar&#32;la&#32;carpeta&#32;raíz.
+<anchor xml:id="__renamer_controller_8kt_source_1l00165"/>00165 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00166"/>00166 &#32;&#32;&#32;&#32;@FXML
+<anchor xml:id="__renamer_controller_8kt_source_1l00167"/>00167 &#32;&#32;&#32;&#32;private&#32;fun&#32;buscarCarpetaRaizClick()&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00168"/>00168 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;directoryChooser&#32;=&#32;DirectoryChooser().apply&#32;{&#32;title&#32;=&#32;&quot;Seleccionar&#32;carpeta&#32;raiz&quot;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00169"/>00169 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;selectedDirectory&#32;=&#32;directoryChooser.showDialog(Stage())
+<anchor xml:id="__renamer_controller_8kt_source_1l00170"/>00170 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;buscarCarpeta.text&#32;=&#32;selectedDirectory?.absolutePath?:&#32;&quot;No&#32;ha&#32;seleccionado&#32;carpetas&quot;
+<anchor xml:id="__renamer_controller_8kt_source_1l00171"/>00171 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;updateUIState()
+<anchor xml:id="__renamer_controller_8kt_source_1l00172"/>00172 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00173"/>00173 
+<anchor xml:id="__renamer_controller_8kt_source_1l00174"/>00174 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00175"/>00175 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;generarCSVConSubcarpetasClick
+<anchor xml:id="__renamer_controller_8kt_source_1l00176"/>00176 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Genera&#32;un&#32;archivo&#32;CSV&#32;con&#32;los&#32;nombres&#32;de&#32;las&#32;subcarpetas&#32;del&#32;directorio&#32;seleccionado.
+<anchor xml:id="__renamer_controller_8kt_source_1l00177"/>00177 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00178"/>00178 &#32;&#32;&#32;&#32;&#32;*&#32;@details&#32;Crea&#32;un&#32;archivo&#32;llamado&#32;&quot;subcarpetas.csv&quot;&#32;en&#32;la&#32;carpeta&#32;raíz&#32;seleccionada,
+<anchor xml:id="__renamer_controller_8kt_source_1l00179"/>00179 &#32;&#32;&#32;&#32;&#32;*&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;con&#32;una&#32;columna&#32;&quot;nombre_actual&quot;&#32;que&#32;lista&#32;todas&#32;las&#32;subcarpetas.
+<anchor xml:id="__renamer_controller_8kt_source_1l00180"/>00180 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00181"/>00181 &#32;&#32;&#32;&#32;&#32;*&#32;@throws&#32;IOException&#32;Si&#32;ocurre&#32;un&#32;error&#32;al&#32;escribir&#32;el&#32;archivo&#32;CSV.
+<anchor xml:id="__renamer_controller_8kt_source_1l00182"/>00182 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00183"/>00183 &#32;&#32;&#32;&#32;@FXML
+<anchor xml:id="__renamer_controller_8kt_source_1l00184"/>00184 &#32;&#32;&#32;&#32;private&#32;fun&#32;generarCSVConSubcarpetasClick()&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00185"/>00185 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(selectedDirectory&#32;==&#32;null)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00186"/>00186 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Error&quot;,&#32;&quot;Seleccione&#32;una&#32;carpeta&#32;raíz&#32;primero.&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00187"/>00187 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;return
+<anchor xml:id="__renamer_controller_8kt_source_1l00188"/>00188 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00189"/>00189 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;csvFile&#32;=&#32;File(selectedDirectory,&#32;&quot;subcarpetas.csv&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00190"/>00190 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;try&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00191"/>00191 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;BufferedWriter(OutputStreamWriter(FileOutputStream(csvFile),&#32;Charsets.UTF_8)).use&#32;{&#32;writer&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00192"/>00192 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;writer.write(&quot;nombre_actual\n&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00193"/>00193 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;selectedDirectory!!.listFiles&#32;{&#32;file&#32;-&gt;&#32;file.isDirectory&#32;}?.forEach&#32;{&#32;folder&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00194"/>00194 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;writer.write(&quot;${folder.name}\n&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00195"/>00195 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00196"/>00196 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00197"/>00197 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Éxito&quot;,&#32;&quot;CSV&#32;generado&#32;en&#32;${csvFile.absolutePath}&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00198"/>00198 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;catch&#32;(e:&#32;Exception)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00199"/>00199 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Error&quot;,&#32;&quot;No&#32;se&#32;puede&#32;generar&#32;el&#32;CSV.&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00200"/>00200 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00201"/>00201 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00202"/>00202 
+<anchor xml:id="__renamer_controller_8kt_source_1l00203"/>00203 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00204"/>00204 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;cargarArchivoCSVClick
+<anchor xml:id="__renamer_controller_8kt_source_1l00205"/>00205 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Abre&#32;un&#32;diálogo&#32;para&#32;seleccionar&#32;un&#32;archivo&#32;CSV&#32;y&#32;carga&#32;sus&#32;columnas.
+<anchor xml:id="__renamer_controller_8kt_source_1l00206"/>00206 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00207"/>00207 &#32;&#32;&#32;&#32;&#32;*&#32;@details&#32;Permite&#32;al&#32;usuario&#32;seleccionar&#32;un&#32;archivo&#32;CSV&#32;y&#32;carga&#32;sus&#32;encabezados
+<anchor xml:id="__renamer_controller_8kt_source_1l00208"/>00208 &#32;&#32;&#32;&#32;&#32;*&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;en&#32;los&#32;ChoiceBox&#32;para&#32;selección&#32;de&#32;columnas.
+<anchor xml:id="__renamer_controller_8kt_source_1l00209"/>00209 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00210"/>00210 &#32;&#32;&#32;&#32;@FXML
+<anchor xml:id="__renamer_controller_8kt_source_1l00211"/>00211 &#32;&#32;&#32;&#32;private&#32;fun&#32;cargarArchivoCSVClick()&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00212"/>00212 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;fileChooser&#32;=&#32;FileChooser().apply&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00213"/>00213 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;title&#32;=&#32;&quot;Seleccionar&#32;Archivo&#32;CSV&quot;
+<anchor xml:id="__renamer_controller_8kt_source_1l00214"/>00214 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;extensionFilters.add(FileChooser.ExtensionFilter(&quot;Archivos&#32;CSV&quot;,&#32;&quot;*.csv&quot;))
+<anchor xml:id="__renamer_controller_8kt_source_1l00215"/>00215 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00216"/>00216 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;selectedCsvFile&#32;=&#32;fileChooser.showOpenDialog(Stage())
+<anchor xml:id="__renamer_controller_8kt_source_1l00217"/>00217 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;cargarCSV.text&#32;=&#32;selectedCsvFile?.name&#32;?:&#32;&quot;No&#32;se&#32;seleccionó&#32;ningún&#32;archivo&quot;
+<anchor xml:id="__renamer_controller_8kt_source_1l00218"/>00218 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;leerColumnasCSV()
+<anchor xml:id="__renamer_controller_8kt_source_1l00219"/>00219 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00220"/>00220 
+<anchor xml:id="__renamer_controller_8kt_source_1l00221"/>00221 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00222"/>00222 &#32;&#32;&#32;&#32;&#32;*&#32;Lee&#32;la&#32;primera&#32;línea&#32;del&#32;CSV&#32;para&#32;obtener&#32;los&#32;nombres&#32;de&#32;las&#32;columnas&#32;y&#32;llenar&#32;los&#32;ChoiceBox.
+<anchor xml:id="__renamer_controller_8kt_source_1l00223"/>00223 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00224"/>00224 &#32;&#32;&#32;&#32;private&#32;fun&#32;leerColumnasCSV()&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00225"/>00225 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;try&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00226"/>00226 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;BufferedReader(InputStreamReader(FileInputStream(selectedCsvFile!!),&#32;Charsets.UTF_8)).use&#32;{&#32;reader&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00227"/>00227 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;firstLine&#32;=&#32;reader.readLine()&#32;?:&#32;run&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00228"/>00228 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Error&quot;,&#32;&quot;El&#32;archivo&#32;CSV&#32;está&#32;vacio&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00229"/>00229 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;return
+<anchor xml:id="__renamer_controller_8kt_source_1l00230"/>00230 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00231"/>00231 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;separator&#32;=&#32;detectSeparator(firstLine)
+<anchor xml:id="__renamer_controller_8kt_source_1l00232"/>00232 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;header&#32;=&#32;firstLine.split(separator)
+<anchor xml:id="__renamer_controller_8kt_source_1l00233"/>00233 
+<anchor xml:id="__renamer_controller_8kt_source_1l00234"/>00234 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(header.size&#32;&lt;&#32;2){
+<anchor xml:id="__renamer_controller_8kt_source_1l00235"/>00235 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Error&quot;,&#32;&quot;El&#32;CSV&#32;debe&#32;tener&#32;al&#32;menos&#32;2&#32;columnas&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00236"/>00236 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;return
+<anchor xml:id="__renamer_controller_8kt_source_1l00237"/>00237 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00238"/>00238 
+<anchor xml:id="__renamer_controller_8kt_source_1l00239"/>00239 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;choiceColumnOldName.items.setAll(header)
+<anchor xml:id="__renamer_controller_8kt_source_1l00240"/>00240 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;choiceColumnNewName.items.setAll(header)
+<anchor xml:id="__renamer_controller_8kt_source_1l00241"/>00241 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;choiceColumnNewName.isDisable&#32;=&#32;false
+<anchor xml:id="__renamer_controller_8kt_source_1l00242"/>00242 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;choiceColumnOldName.isDisable&#32;=&#32;false
+<anchor xml:id="__renamer_controller_8kt_source_1l00243"/>00243 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;btnRenamer.isDisable&#32;=&#32;false
+<anchor xml:id="__renamer_controller_8kt_source_1l00244"/>00244 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00245"/>00245 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;catch&#32;(e:&#32;Exception)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00246"/>00246 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Error&quot;,&#32;&quot;No&#32;se&#32;puede&#32;leer&#32;el&#32;archivo&#32;CSV.&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00247"/>00247 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00248"/>00248 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00249"/>00249 
+<anchor xml:id="__renamer_controller_8kt_source_1l00250"/>00250 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00251"/>00251 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;detectSeparator
+<anchor xml:id="__renamer_controller_8kt_source_1l00252"/>00252 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Detecta&#32;el&#32;separador&#32;utilizado&#32;en&#32;un&#32;archivo&#32;CSV.
+<anchor xml:id="__renamer_controller_8kt_source_1l00253"/>00253 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00254"/>00254 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;line&#32;Primera&#32;línea&#32;del&#32;archivo&#32;CSV&#32;para&#32;analizar.
+<anchor xml:id="__renamer_controller_8kt_source_1l00255"/>00255 &#32;&#32;&#32;&#32;&#32;*&#32;@return&#32;String&#32;con&#32;el&#32;separador&#32;detectado&#32;(&quot;,&quot;,&#32;&quot;;&quot;&#32;o&#32;&quot;\t&quot;).
+<anchor xml:id="__renamer_controller_8kt_source_1l00256"/>00256 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00257"/>00257 
+<anchor xml:id="__renamer_controller_8kt_source_1l00258"/>00258 &#32;&#32;&#32;&#32;private&#32;fun&#32;detectSeparator(line:&#32;String):&#32;String{
+<anchor xml:id="__renamer_controller_8kt_source_1l00259"/>00259 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;semicolonCount&#32;=&#32;line.count&#32;{&#32;it&#32;==&#32;&apos;;&apos;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00260"/>00260 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;commaCount&#32;=&#32;line.count&#32;{it&#32;==&#32;&apos;,&apos;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00261"/>00261 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;tabCount&#32;=&#32;line.count{it&#32;==&#32;&apos;\t&apos;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00262"/>00262 
+<anchor xml:id="__renamer_controller_8kt_source_1l00263"/>00263 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;return&#32;when&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00264"/>00264 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;semicolonCount&#32;&gt;&#32;commaCount&#32;&amp;&amp;&#32;semicolonCount&#32;&gt;&#32;tabCount&#32;-&gt;&#32;&quot;;&quot;
+<anchor xml:id="__renamer_controller_8kt_source_1l00265"/>00265 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;tabCount&#32;&gt;&#32;commaCount&#32;&amp;&amp;&#32;tabCount&#32;&gt;&#32;semicolonCount&#32;-&gt;&#32;&quot;\t&quot;
+<anchor xml:id="__renamer_controller_8kt_source_1l00266"/>00266 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;else&#32;-&gt;&#32;&quot;,&quot;&#32;//&#32;Por&#32;defecto
+<anchor xml:id="__renamer_controller_8kt_source_1l00267"/>00267 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00268"/>00268 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00269"/>00269 
+<anchor xml:id="__renamer_controller_8kt_source_1l00270"/>00270 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00271"/>00271 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;renombrarClic
+<anchor xml:id="__renamer_controller_8kt_source_1l00272"/>00272 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Ejecuta&#32;el&#32;proceso&#32;completo&#32;de&#32;renombrado&#32;según&#32;las&#32;opciones&#32;seleccionadas.
+<anchor xml:id="__renamer_controller_8kt_source_1l00273"/>00273 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00274"/>00274 &#32;&#32;&#32;&#32;&#32;*&#32;@details&#32;Realiza&#32;validaciones&#32;previas&#32;y&#32;ejecuta:
+<anchor xml:id="__renamer_controller_8kt_source_1l00275"/>00275 &#32;&#32;&#32;&#32;&#32;*&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;-&#32;Renombrado&#32;de&#32;carpetas&#32;(si&#32;está&#32;habilitado&#32;y&#32;hay&#32;CSV&#32;cargado)
+<anchor xml:id="__renamer_controller_8kt_source_1l00276"/>00276 &#32;&#32;&#32;&#32;&#32;*&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;-&#32;Renombrado&#32;de&#32;archivos&#32;(si&#32;está&#32;habilitado)
+<anchor xml:id="__renamer_controller_8kt_source_1l00277"/>00277 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00278"/>00278 &#32;&#32;&#32;&#32;@FXML
+<anchor xml:id="__renamer_controller_8kt_source_1l00279"/>00279 &#32;&#32;&#32;&#32;private&#32;&#32;fun&#32;renombrarClic(){
+<anchor xml:id="__renamer_controller_8kt_source_1l00280"/>00280 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;when&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00281"/>00281 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;selectedDirectory&#32;==&#32;null&#32;-&gt;&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00282"/>00282 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Advertencia&quot;,&#32;&quot;Seleccione&#32;la&#32;carpeta&#32;primero.&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00283"/>00283 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;return
+<anchor xml:id="__renamer_controller_8kt_source_1l00284"/>00284 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00285"/>00285 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;!chkRenombrarCarpetas.isSelected&#32;&amp;&amp;&#32;!chkRenombrarArchivos.isSelected&#32;-&gt;&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00286"/>00286 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Advertencia&quot;,&#32;&quot;Seleccione&#32;al&#32;menos&#32;una&#32;opción&#32;de&#32;renombrado&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00287"/>00287 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;return
+<anchor xml:id="__renamer_controller_8kt_source_1l00288"/>00288 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00289"/>00289 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;chkRenombrarCarpetas.isSelected&#32;&amp;&amp;&#32;(selectedCsvFile&#32;==&#32;null&#32;||
+<anchor xml:id="__renamer_controller_8kt_source_1l00290"/>00290 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;choiceColumnOldName.selectionModel.isEmpty&#32;||
+<anchor xml:id="__renamer_controller_8kt_source_1l00291"/>00291 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;choiceColumnNewName.selectionModel.isEmpty)&#32;-&gt;&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00292"/>00292 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Advertencia&quot;,&#32;&quot;Para&#32;renombrar&#32;carpetas&#32;selecciones&#32;el&#32;CSV&#32;y&#32;ambas&#32;columnas&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00293"/>00293 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;return
+<anchor xml:id="__renamer_controller_8kt_source_1l00294"/>00294 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00295"/>00295 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00296"/>00296 
+<anchor xml:id="__renamer_controller_8kt_source_1l00297"/>00297 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(chkRenombrarCarpetas.isSelected){
+<anchor xml:id="__renamer_controller_8kt_source_1l00298"/>00298 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;oldNameColumn&#32;=&#32;choiceColumnOldName.selectionModel.selectedItem
+<anchor xml:id="__renamer_controller_8kt_source_1l00299"/>00299 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;newNameColumn&#32;=&#32;choiceColumnNewName.selectionModel.selectedItem
+<anchor xml:id="__renamer_controller_8kt_source_1l00300"/>00300 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;cargarMapeoDeCSV(oldNameColumn,&#32;newNameColumn)
+<anchor xml:id="__renamer_controller_8kt_source_1l00301"/>00301 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;recorrerYRenombrarCarpetas(selectedDirectory!!)
+<anchor xml:id="__renamer_controller_8kt_source_1l00302"/>00302 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00303"/>00303 
+<anchor xml:id="__renamer_controller_8kt_source_1l00304"/>00304 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(chkRenombrarArchivos.isSelected){
+<anchor xml:id="__renamer_controller_8kt_source_1l00305"/>00305 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;recorrerYRenombrarArchivos(selectedDirectory!!)
+<anchor xml:id="__renamer_controller_8kt_source_1l00306"/>00306 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00307"/>00307 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Completado&quot;,&#32;&quot;Proceso&#32;de&#32;renombrado&#32;finalizado&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00308"/>00308 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00309"/>00309 
+<anchor xml:id="__renamer_controller_8kt_source_1l00310"/>00310 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00311"/>00311 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;cargarMapeoDeCSV
+<anchor xml:id="__renamer_controller_8kt_source_1l00312"/>00312 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Carga&#32;el&#32;mapeo&#32;de&#32;nombres&#32;antiguos&#32;a&#32;nuevos&#32;desde&#32;un&#32;archivo&#32;CSV.
+<anchor xml:id="__renamer_controller_8kt_source_1l00313"/>00313 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00314"/>00314 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;oldNameColumn&#32;Nombre&#32;de&#32;la&#32;columna&#32;con&#32;nombres&#32;actuales.
+<anchor xml:id="__renamer_controller_8kt_source_1l00315"/>00315 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;newNameColumn&#32;Nombre&#32;de&#32;la&#32;columna&#32;con&#32;nombres&#32;nuevos.
+<anchor xml:id="__renamer_controller_8kt_source_1l00316"/>00316 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00317"/>00317 &#32;&#32;&#32;&#32;&#32;*&#32;@throws&#32;IOException&#32;Si&#32;ocurre&#32;un&#32;error&#32;al&#32;leer&#32;el&#32;archivo&#32;CSV.
+<anchor xml:id="__renamer_controller_8kt_source_1l00318"/>00318 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00319"/>00319 &#32;&#32;&#32;&#32;private&#32;fun&#32;cargarMapeoDeCSV(oldNameColumn:&#32;String,&#32;newNameColumn:&#32;String)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00320"/>00320 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;try&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00321"/>00321 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;BufferedReader(InputStreamReader(FileInputStream(selectedCsvFile!!),&#32;Charsets.UTF_8)).use&#32;{&#32;reader&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00322"/>00322 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;firstLine&#32;=&#32;reader.readLine()&#32;?:&#32;return
+<anchor xml:id="__renamer_controller_8kt_source_1l00323"/>00323 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;separator&#32;=&#32;detectSeparator(firstLine)
+<anchor xml:id="__renamer_controller_8kt_source_1l00324"/>00324 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;header&#32;=&#32;firstLine.split(separator)
+<anchor xml:id="__renamer_controller_8kt_source_1l00325"/>00325 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;indexOld&#32;=&#32;header.indexOf(oldNameColumn)
+<anchor xml:id="__renamer_controller_8kt_source_1l00326"/>00326 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;indexNew&#32;=&#32;header.indexOf(newNameColumn)
+<anchor xml:id="__renamer_controller_8kt_source_1l00327"/>00327 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(indexOld&#32;==&#32;-1&#32;||&#32;indexNew&#32;==&#32;-1)&#32;return
+<anchor xml:id="__renamer_controller_8kt_source_1l00328"/>00328 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;nameMappings.clear()
+<anchor xml:id="__renamer_controller_8kt_source_1l00329"/>00329 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;reader.forEachLine&#32;{&#32;line&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00330"/>00330 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;values&#32;=&#32;line.split(separator)
+<anchor xml:id="__renamer_controller_8kt_source_1l00331"/>00331 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(values.size&#32;&gt;&#32;indexOld&#32;&amp;&amp;&#32;values.size&#32;&gt;&#32;indexNew)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00332"/>00332 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;nameMappings[values[indexOld]]&#32;=&#32;values[indexNew]
+<anchor xml:id="__renamer_controller_8kt_source_1l00333"/>00333 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00334"/>00334 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00335"/>00335 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00336"/>00336 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;catch&#32;(e:&#32;Exception)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00337"/>00337 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Error&quot;,&#32;&quot;No&#32;se&#32;puede&#32;procesar&#32;el&#32;CSV.&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00338"/>00338 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00339"/>00339 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00340"/>00340 
+<anchor xml:id="__renamer_controller_8kt_source_1l00341"/>00341 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00342"/>00342 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;recorrerYRenombrarCarpetas
+<anchor xml:id="__renamer_controller_8kt_source_1l00343"/>00343 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Renombra&#32;carpetas&#32;según&#32;el&#32;mapeo&#32;cargado&#32;desde&#32;CSV.
+<anchor xml:id="__renamer_controller_8kt_source_1l00344"/>00344 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00345"/>00345 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;directory&#32;Directorio&#32;raíz&#32;donde&#32;se&#32;buscarán&#32;las&#32;carpetas&#32;a&#32;renombrar.
+<anchor xml:id="__renamer_controller_8kt_source_1l00346"/>00346 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00347"/>00347 &#32;&#32;&#32;&#32;&#32;*&#32;@details&#32;Genera&#32;un&#32;reporte&#32;detallado&#32;en&#32;consola&#32;con&#32;los&#32;resultados.
+<anchor xml:id="__renamer_controller_8kt_source_1l00348"/>00348 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00349"/>00349 &#32;&#32;&#32;&#32;private&#32;fun&#32;recorrerYRenombrarCarpetas(directory:&#32;File)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00350"/>00350 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;errores&#32;=&#32;mutableListOf&lt;String&gt;()
+<anchor xml:id="__renamer_controller_8kt_source_1l00351"/>00351 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;exitos&#32;=&#32;mutableListOf&lt;String&gt;()
+<anchor xml:id="__renamer_controller_8kt_source_1l00352"/>00352 
+<anchor xml:id="__renamer_controller_8kt_source_1l00353"/>00353 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;println(&quot;Total&#32;de&#32;carpetas&#32;procesadas:&#32;${nameMappings.size}&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00354"/>00354 
+<anchor xml:id="__renamer_controller_8kt_source_1l00355"/>00355 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;nameMappings.forEach&#32;{&#32;(oldName,&#32;newName)&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00356"/>00356 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(!validarNombre(newName)){
+<anchor xml:id="__renamer_controller_8kt_source_1l00357"/>00357 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;errores.add(&quot;Nombre&#32;inválido:&#32;&apos;$newName&apos;&#32;-&#32;contiene&#32;caracteres&#32;prohibidos&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00358"/>00358 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;return@forEach
+<anchor xml:id="__renamer_controller_8kt_source_1l00359"/>00359 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00360"/>00360 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;folder&#32;=&#32;File(directory,&#32;oldName)
+<anchor xml:id="__renamer_controller_8kt_source_1l00361"/>00361 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(folder.exists()&#32;&amp;&amp;&#32;folder.isDirectory)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00362"/>00362 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;newFolder&#32;=&#32;File(folder.parent,&#32;newName)
+<anchor xml:id="__renamer_controller_8kt_source_1l00363"/>00363 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(folder.renameTo(newFolder)){
+<anchor xml:id="__renamer_controller_8kt_source_1l00364"/>00364 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;exitos.add(&quot;${folder.name}&#32;-&gt;&#32;$newName&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00365"/>00365 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;else&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00366"/>00366 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;errores.add(&quot;${folder.name}&#32;-&gt;&#32;$newName&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00367"/>00367 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00368"/>00368 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;else&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00369"/>00369 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;errores.add(&quot;Carpeta&#32;no&#32;encontrada:&#32;&apos;$oldName&apos;&#32;(mapeada&#32;a&#32;&apos;$newName&apos;)&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00370"/>00370 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00371"/>00371 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00372"/>00372 
+<anchor xml:id="__renamer_controller_8kt_source_1l00373"/>00373 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//Mostrar&#32;resumen&#32;en&#32;consola
+<anchor xml:id="__renamer_controller_8kt_source_1l00374"/>00374 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;println(&quot;\n===&#32;RESUMEN&#32;DE&#32;RENOMBRADO&#32;DE&#32;CARPETAS&#32;===&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00375"/>00375 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;println(&quot;\n✅&#32;Carpetas&#32;renombradas&#32;con&#32;éxito&#32;(${exitos.size}):&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00376"/>00376 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;exitos.forEach&#32;{&#32;println(it)&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00377"/>00377 
+<anchor xml:id="__renamer_controller_8kt_source_1l00378"/>00378 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Mostrar&#32;resumen&#32;en&#32;alerta
+<anchor xml:id="__renamer_controller_8kt_source_1l00379"/>00379 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(errores.isNotEmpty()){
+<anchor xml:id="__renamer_controller_8kt_source_1l00380"/>00380 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Advertencia&quot;,&#32;&quot;Hubo&#32;${errores.size}&#32;errores&#32;al&#32;renombrar&#32;carpetas.&#32;\nVer&#32;consola&#32;para&#32;detalles&#32;completos&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00381"/>00381 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00382"/>00382 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00383"/>00383 
+<anchor xml:id="__renamer_controller_8kt_source_1l00384"/>00384 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00385"/>00385 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;recorrerYRenombrarArchivos
+<anchor xml:id="__renamer_controller_8kt_source_1l00386"/>00386 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Renombra&#32;archivos&#32;según&#32;los&#32;sufijos&#32;predefinidos.
+<anchor xml:id="__renamer_controller_8kt_source_1l00387"/>00387 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00388"/>00388 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;raiz&#32;Directorio&#32;raíz&#32;donde&#32;se&#32;buscarán&#32;los&#32;archivos.
+<anchor xml:id="__renamer_controller_8kt_source_1l00389"/>00389 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00390"/>00390 &#32;&#32;&#32;&#32;&#32;*&#32;@details&#32;Los&#32;nuevos&#32;nombres&#32;siguen&#32;el&#32;formato:
+<anchor xml:id="__renamer_controller_8kt_source_1l00391"/>00391 &#32;&#32;&#32;&#32;&#32;*&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;[NombreCarpetaPadre][Sufijo].[extensión]&quot;
+<anchor xml:id="__renamer_controller_8kt_source_1l00392"/>00392 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00393"/>00393 &#32;&#32;&#32;&#32;private&#32;fun&#32;recorrerYRenombrarArchivos(raiz:&#32;File)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00394"/>00394 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;errores&#32;=&#32;mutableListOf&lt;String&gt;()
+<anchor xml:id="__renamer_controller_8kt_source_1l00395"/>00395 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;exitos&#32;=&#32;mutableListOf&lt;String&gt;()
+<anchor xml:id="__renamer_controller_8kt_source_1l00396"/>00396 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;archivosLargos&#32;=&#32;mutableListOf&lt;String&gt;()
+<anchor xml:id="__renamer_controller_8kt_source_1l00397"/>00397 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;archivosExistentes&#32;=&#32;mutableListOf&lt;String&gt;()&#32;//&#32;Nueva&#32;lista&#32;para&#32;archivos&#32;que&#32;ya&#32;existen
+<anchor xml:id="__renamer_controller_8kt_source_1l00398"/>00398 
+<anchor xml:id="__renamer_controller_8kt_source_1l00399"/>00399 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;println(&quot;\n===&#32;INICIANDO&#32;RENOMBRADO&#32;DE&#32;ARCHIVOS&#32;===&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00400"/>00400 
+<anchor xml:id="__renamer_controller_8kt_source_1l00401"/>00401 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;raiz.listFiles()?.filter&#32;{&#32;it.isDirectory&#32;}?.forEach&#32;{&#32;carpetaProyecto&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00402"/>00402 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;carpetaProyecto.walkTopDown()
+<anchor xml:id="__renamer_controller_8kt_source_1l00403"/>00403 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.filter&#32;{&#32;it.isFile&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00404"/>00404 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.forEach&#32;{&#32;file&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00405"/>00405 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fileSuffixes.firstOrNull&#32;{&#32;suffix&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00406"/>00406 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;file.nameWithoutExtension.endsWith(suffix)
+<anchor xml:id="__renamer_controller_8kt_source_1l00407"/>00407 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}?.let&#32;{&#32;suffix&#32;-&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00408"/>00408 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;extension&#32;=&#32;if&#32;(file.extension.isNotEmpty())&#32;&quot;.${file.extension}&quot;&#32;else&#32;&quot;&quot;
+<anchor xml:id="__renamer_controller_8kt_source_1l00409"/>00409 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;newFileName&#32;=&#32;&quot;${carpetaProyecto.name}$suffix$extension&quot;
+<anchor xml:id="__renamer_controller_8kt_source_1l00410"/>00410 
+<anchor xml:id="__renamer_controller_8kt_source_1l00411"/>00411 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(newFileName.length&#32;&gt;&#32;255)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00412"/>00412 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;archivosLargos.add(&quot;⚠&#32;Nombre&#32;demasiado&#32;largo:&#32;&apos;${file.name}&apos;&#32;-&gt;&#32;&apos;$newFileName&apos;&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00413"/>00413 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;return@forEach
+<anchor xml:id="__renamer_controller_8kt_source_1l00414"/>00414 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00415"/>00415 
+<anchor xml:id="__renamer_controller_8kt_source_1l00416"/>00416 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;newFile&#32;=&#32;File(file.parent,&#32;newFileName)
+<anchor xml:id="__renamer_controller_8kt_source_1l00417"/>00417 
+<anchor xml:id="__renamer_controller_8kt_source_1l00418"/>00418 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;try&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00419"/>00419 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(newFile.exists())&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00420"/>00420 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Archivo&#32;ya&#32;existe&#32;-&#32;lo&#32;omitimos
+<anchor xml:id="__renamer_controller_8kt_source_1l00421"/>00421 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;archivosExistentes.add(&quot;↻&#32;Archivo&#32;ya&#32;existente:&#32;&apos;${file.name}&apos;&#32;-&gt;&#32;&apos;$newFileName&apos;&#32;(no&#32;se&#32;renombró)&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00422"/>00422 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;else&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00423"/>00423 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;Files.move(file.toPath(),&#32;newFile.toPath())
+<anchor xml:id="__renamer_controller_8kt_source_1l00424"/>00424 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;exitos.add(&quot;✓&#32;${file.name}&#32;-&gt;&#32;$newFileName&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00425"/>00425 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00426"/>00426 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;catch&#32;(e:&#32;IOException)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00427"/>00427 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;errores.add(&quot;✗&#32;Error&#32;renombrando&#32;&apos;${file.name}&apos;:&#32;${e.message}&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00428"/>00428 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00429"/>00429 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00430"/>00430 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00431"/>00431 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00432"/>00432 
+<anchor xml:id="__renamer_controller_8kt_source_1l00433"/>00433 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Mostrar&#32;resultados&#32;en&#32;consola
+<anchor xml:id="__renamer_controller_8kt_source_1l00434"/>00434 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printResults(exitos,&#32;archivosLargos,&#32;errores,&#32;archivosExistentes)&#32;//&#32;Función&#32;actualizada
+<anchor xml:id="__renamer_controller_8kt_source_1l00435"/>00435 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00436"/>00436 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00437"/>00437 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;printResults
+<anchor xml:id="__renamer_controller_8kt_source_1l00438"/>00438 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Imprime&#32;en&#32;consola&#32;un&#32;resumen&#32;detallado&#32;del&#32;renombrado&#32;de&#32;archivos.
+<anchor xml:id="__renamer_controller_8kt_source_1l00439"/>00439 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00440"/>00440 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;exitos&#32;Lista&#32;de&#32;archivos&#32;renombrados&#32;exitosamente.
+<anchor xml:id="__renamer_controller_8kt_source_1l00441"/>00441 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;archivosLargos&#32;Lista&#32;de&#32;archivos&#32;con&#32;nombres&#32;demasiado&#32;largos.
+<anchor xml:id="__renamer_controller_8kt_source_1l00442"/>00442 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;errores&#32;Lista&#32;de&#32;errores&#32;durante&#32;el&#32;proceso.
+<anchor xml:id="__renamer_controller_8kt_source_1l00443"/>00443 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;archivosExistentes&#32;Lista&#32;de&#32;archivos&#32;que&#32;no&#32;se&#32;renombraron&#32;por&#32;existir.
+<anchor xml:id="__renamer_controller_8kt_source_1l00444"/>00444 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00445"/>00445 
+<anchor xml:id="__renamer_controller_8kt_source_1l00446"/>00446 &#32;&#32;&#32;&#32;private&#32;fun&#32;printResults(
+<anchor xml:id="__renamer_controller_8kt_source_1l00447"/>00447 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;exitos:&#32;List&lt;String&gt;,
+<anchor xml:id="__renamer_controller_8kt_source_1l00448"/>00448 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;archivosLargos:&#32;List&lt;String&gt;,
+<anchor xml:id="__renamer_controller_8kt_source_1l00449"/>00449 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;errores:&#32;List&lt;String&gt;,
+<anchor xml:id="__renamer_controller_8kt_source_1l00450"/>00450 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;archivosExistentes:&#32;List&lt;String&gt;
+<anchor xml:id="__renamer_controller_8kt_source_1l00451"/>00451 &#32;&#32;&#32;&#32;)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00452"/>00452 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;println(&quot;\n===&#32;RESULTADOS&#32;COMPLETOS&#32;DE&#32;RENOMBRADO&#32;===&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00453"/>00453 
+<anchor xml:id="__renamer_controller_8kt_source_1l00454"/>00454 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(exitos.isNotEmpty())&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00455"/>00455 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;println(&quot;\n✅&#32;ARCHIVOS&#32;RENOMBRADOS&#32;CON&#32;ÉXITO&#32;(${exitos.size}):&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00456"/>00456 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;exitos.forEach&#32;{&#32;println(it)&#32;}&#32;//&#32;Mostrar&#32;TODOS&#32;sin&#32;límite
+<anchor xml:id="__renamer_controller_8kt_source_1l00457"/>00457 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00458"/>00458 
+<anchor xml:id="__renamer_controller_8kt_source_1l00459"/>00459 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(archivosExistentes.isNotEmpty())&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00460"/>00460 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;println(&quot;\n↻&#32;ARCHIVOS&#32;EXISTENTES&#32;(NO&#32;RENOMBRADOS)&#32;(${archivosExistentes.size}):&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00461"/>00461 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;archivosExistentes.forEach&#32;{&#32;println(it)&#32;}&#32;//&#32;Mostrar&#32;TODOS
+<anchor xml:id="__renamer_controller_8kt_source_1l00462"/>00462 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00463"/>00463 
+<anchor xml:id="__renamer_controller_8kt_source_1l00464"/>00464 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(archivosLargos.isNotEmpty())&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00465"/>00465 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;println(&quot;\n⚠&#32;ARCHIVOS&#32;CON&#32;NOMBRES&#32;DEMASIADO&#32;LARGOS&#32;(${archivosLargos.size}):&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00466"/>00466 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;archivosLargos.forEach&#32;{&#32;println(it)&#32;}&#32;//&#32;Mostrar&#32;TODOS
+<anchor xml:id="__renamer_controller_8kt_source_1l00467"/>00467 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00468"/>00468 
+<anchor xml:id="__renamer_controller_8kt_source_1l00469"/>00469 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(errores.isNotEmpty())&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00470"/>00470 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;println(&quot;\n❌&#32;ERRORES&#32;DURANTE&#32;EL&#32;RENOMBRADO&#32;(${errores.size}):&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00471"/>00471 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;errores.forEach&#32;{&#32;println(it)&#32;}&#32;//&#32;Mostrar&#32;TODOS
+<anchor xml:id="__renamer_controller_8kt_source_1l00472"/>00472 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00473"/>00473 
+<anchor xml:id="__renamer_controller_8kt_source_1l00474"/>00474 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;//&#32;Resumen&#32;en&#32;alerta&#32;(opcional,&#32;puede&#32;mantenerse&#32;igual)
+<anchor xml:id="__renamer_controller_8kt_source_1l00475"/>00475 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(errores.isNotEmpty()&#32;||&#32;archivosLargos.isNotEmpty()&#32;||&#32;archivosExistentes.isNotEmpty())&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00476"/>00476 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;mensaje&#32;=&#32;buildString&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00477"/>00477 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(exitos.isNotEmpty())&#32;append(&quot;✅&#32;${exitos.size}&#32;archivos&#32;renombrados\n&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00478"/>00478 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(archivosExistentes.isNotEmpty())&#32;append(&quot;↻&#32;${archivosExistentes.size}&#32;archivos&#32;ya&#32;existían\n&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00479"/>00479 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(archivosLargos.isNotEmpty())&#32;append(&quot;⚠&#32;${archivosLargos.size}&#32;nombres&#32;demasiado&#32;largos\n&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00480"/>00480 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(errores.isNotEmpty())&#32;append(&quot;❌&#32;${errores.size}&#32;errores\n&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00481"/>00481 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;append(&quot;Ver&#32;consola&#32;para&#32;detalles&#32;completos.&quot;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00482"/>00482 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00483"/>00483 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;mostrarAlerta(&quot;Resumen&#32;Completo&quot;,&#32;mensaje)
+<anchor xml:id="__renamer_controller_8kt_source_1l00484"/>00484 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00485"/>00485 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00486"/>00486 
+<anchor xml:id="__renamer_controller_8kt_source_1l00487"/>00487 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00488"/>00488 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;mostrarAlerta
+<anchor xml:id="__renamer_controller_8kt_source_1l00489"/>00489 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Muestra&#32;una&#32;alerta&#32;en&#32;pantalla.
+<anchor xml:id="__renamer_controller_8kt_source_1l00490"/>00490 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;titulo&#32;Título&#32;de&#32;la&#32;alerta.
+<anchor xml:id="__renamer_controller_8kt_source_1l00491"/>00491 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;mensaje&#32;Contenido&#32;a&#32;mostrar.
+<anchor xml:id="__renamer_controller_8kt_source_1l00492"/>00492 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00493"/>00493 &#32;&#32;&#32;&#32;private&#32;fun&#32;mostrarAlerta(titulo:&#32;String,&#32;mensaje:&#32;String)&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00494"/>00494 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;Alert(Alert.AlertType.INFORMATION).apply&#32;{
+<anchor xml:id="__renamer_controller_8kt_source_1l00495"/>00495 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;title&#32;=&#32;titulo
+<anchor xml:id="__renamer_controller_8kt_source_1l00496"/>00496 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;contentText&#32;=&#32;mensaje
+<anchor xml:id="__renamer_controller_8kt_source_1l00497"/>00497 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;showAndWait()
+<anchor xml:id="__renamer_controller_8kt_source_1l00498"/>00498 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00499"/>00499 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00500"/>00500 
+<anchor xml:id="__renamer_controller_8kt_source_1l00501"/>00501 &#32;&#32;&#32;&#32;/**
+<anchor xml:id="__renamer_controller_8kt_source_1l00502"/>00502 &#32;&#32;&#32;&#32;&#32;*&#32;@fn&#32;validarNombre
+<anchor xml:id="__renamer_controller_8kt_source_1l00503"/>00503 &#32;&#32;&#32;&#32;&#32;*&#32;@brief&#32;Valida&#32;que&#32;un&#32;nombre&#32;no&#32;contenga&#32;caracteres&#32;prohibidos.
+<anchor xml:id="__renamer_controller_8kt_source_1l00504"/>00504 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00505"/>00505 &#32;&#32;&#32;&#32;&#32;*&#32;@param&#32;nombre&#32;Nombre&#32;a&#32;validar.
+<anchor xml:id="__renamer_controller_8kt_source_1l00506"/>00506 &#32;&#32;&#32;&#32;&#32;*&#32;@return&#32;Boolean&#32;true&#32;si&#32;el&#32;nombre&#32;es&#32;válido,&#32;false&#32;si&#32;contiene&#32;caracteres&#32;prohibidos.
+<anchor xml:id="__renamer_controller_8kt_source_1l00507"/>00507 &#32;&#32;&#32;&#32;&#32;*
+<anchor xml:id="__renamer_controller_8kt_source_1l00508"/>00508 &#32;&#32;&#32;&#32;&#32;*&#32;@note&#32;Caracteres&#32;prohibidos:&#32;/&#32;\&#32;:&#32;*&#32;?&#32;&quot;&#32;&lt;&#32;&gt;&#32;|
+<anchor xml:id="__renamer_controller_8kt_source_1l00509"/>00509 &#32;&#32;&#32;&#32;&#32;*/
+<anchor xml:id="__renamer_controller_8kt_source_1l00510"/>00510 
+<anchor xml:id="__renamer_controller_8kt_source_1l00511"/>00511 &#32;&#32;&#32;&#32;private&#32;fun&#32;validarNombre(nombre:&#32;String):&#32;Boolean{
+<anchor xml:id="__renamer_controller_8kt_source_1l00512"/>00512 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;val&#32;caracteresProhibidos&#32;=&#32;setOf(&apos;/&apos;,&#32;&apos;\\&apos;,&#32;&apos;:&apos;,&#32;&apos;*&apos;,&#32;&apos;?&apos;,&#32;&apos;&quot;&apos;,&#32;&apos;&lt;&apos;,&#32;&apos;&gt;&apos;,&#32;&apos;|&apos;)
+<anchor xml:id="__renamer_controller_8kt_source_1l00513"/>00513 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;return&#32;!nombre.any&#32;{&#32;it&#32;in&#32;caracteresProhibidos}
+<anchor xml:id="__renamer_controller_8kt_source_1l00514"/>00514 &#32;&#32;&#32;&#32;}
+<anchor xml:id="__renamer_controller_8kt_source_1l00515"/>00515 }
+</programlisting></section>

@@ -1,0 +1,77 @@
+\doxysection{Renamer.\+kt}
+\hypertarget{_renamer_8kt_source}{}\label{_renamer_8kt_source}\index{src/main/kotlin/org/surveycolombia/renombrar/Renamer.kt@{src/main/kotlin/org/surveycolombia/renombrar/Renamer.kt}}
+\mbox{\hyperlink{_renamer_8kt}{Ir a la documentación de este archivo.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00001}00001\ /***************************************************************************}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00002}00002\ \ *\ Renombrador\ de\ Archivos}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00003}00003\ \ *\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00004}00004\ \ *\ Copyright\ (C)\ 2025\ by\ David\ Andres\ Gonzalez\ Gutierrez}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00005}00005\ \ *\ Email:\ surveycolombia@gmail.com}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00006}00006\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00007}00007\ \ *\ Este\ software\ se\ distribuye\ bajo\ la\ licencia\ GNU\ GPL\ v3\ con\ restricciones\ adicionales.}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00008}00008\ \ *\ Puedes\ usarlo,\ modificarlo\ y\ distribuirlo\ libremente,\ siempre\ y\ cuando\ se\ mantenga}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00009}00009\ \ *\ este\ aviso\ de\ copyright\ y\ la\ licencia\ original.}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00010}00010\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00011}00011\ \ *\ Derechos\ de\ Autor:}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00012}00012\ \ *\ El\ autor\ mantiene\ todos\ los\ derechos\ intelectuales\ sobre\ el\ software.}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00013}00013\ \ *\ Cualquier\ modificación\ o\ redistribución\ debe\ reconocer\ la\ autoría\ original.}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00014}00014\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00015}00015\ \ *\ Restricción\ Comercial:}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00016}00016\ \ *\ Queda\ prohibido\ el\ uso\ comercial\ de\ este\ software\ sin\ la\ autorización\ expresa}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00017}00017\ \ *\ y\ por\ escrito\ del\ autor.}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00018}00018\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00019}00019\ \ *\ GNU\ General\ Public\ License\ v3.0:}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00020}00020\ \ *\ https://www.gnu.org/licenses/gpl-\/3.0.html}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00021}00021\ \ ***************************************************************************/}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00022}00022\ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00023}00023\ \ *\ @file\ Rename.kt}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00024}00024\ \ *\ @brief\ Punto\ de\ entrada\ de\ la\ aplicación\ JavaFX.}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00025}00025\ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00027}00027\ package\ org.surveycolombia.renombrar}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00029}00029\ import\ javafx.application.Application}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00030}00030\ import\ javafx.fxml.FXMLLoader}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00031}00031\ import\ javafx.scene.Scene}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00032}00032\ import\ javafx.scene.image.Image}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00033}00033\ import\ javafx.stage.Stage}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00035}00035\ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00036}00036\ \ *\ @class\ Rename}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00037}00037\ \ *\ @brief\ Clase\ principal\ que\ inicia\ la\ aplicación\ JavaFX.}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00038}00038\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00039}00039\ \ *\ Configura:}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00040}00040\ \ *\ -\/\ La\ ventana\ principal}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00041}00041\ \ *\ -\/\ La\ escena\ con\ el\ FXML}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00042}00042\ \ *\ -\/\ El\ icono\ de\ la\ aplicación}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00043}00043\ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00045}00045\ class\ Rename\ :\ Application()\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00046}00046\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00047}00047\ \ \ \ \ \ *\ @fn\ start}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00048}00048\ \ \ \ \ \ *\ @brief\ Método\ principal\ de\ JavaFX.}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00049}00049\ \ \ \ \ \ *\ @param\ stage\ Ventana\ principal\ proporcionada\ por\ JavaFX.}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00050}00050\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00051}00051\ }
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00052}00052\ \ \ \ \ override\ fun\ start(stage:\ Stage)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00053}00053\ \ \ \ \ \ \ \ \ val\ fxmlLoader\ =\ FXMLLoader(Rename::class.java.getResource("{}renamer\_view.fxml"{}))}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00054}00054\ \ \ \ \ \ \ \ \ val\ scene\ =\ Scene(fxmlLoader.load(),\ 400.0,\ 650.0)}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00056}00056\ \ \ \ \ \ \ \ \ stage.title\ =\ "{}[\ R\ E\ N\ O\ M\ B\ R\ A\ R\ ]"{}}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00057}00057\ \ \ \ \ \ \ \ \ val\ icon\ =\ Image(javaClass.getResourceAsStream("{}/app\_icon.png"{}))}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00058}00058\ \ \ \ \ \ \ \ \ stage.icons.add(icon)}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00059}00059\ \ \ \ \ \ \ \ \ stage.scene\ =\ scene}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00060}00060\ \ \ \ \ \ \ \ \ stage.show()}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00061}00061\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00062}00062\ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00063}00063\ }
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00064}00064\ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00065}00065\ \ *\ @fn\ main}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00066}00066\ \ *\ @brief\ Punto\ de\ entrada\ de\ la\ aplicación.}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00067}00067\ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00068}00068\ }
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00069}00069\ fun\ main()\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00070}00070\ \ \ \ \ Application.launch(Rename::class.java)}
+\DoxyCodeLine{\Hypertarget{_renamer_8kt_source_l00071}00071\ \}}
+
+\end{DoxyCode}

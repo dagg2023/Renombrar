@@ -1,0 +1,521 @@
+\doxysection{Renamer\+Controller.\+kt}
+\hypertarget{_renamer_controller_8kt_source}{}\label{_renamer_controller_8kt_source}\index{src/main/kotlin/org/surveycolombia/renombrar/RenamerController.kt@{src/main/kotlin/org/surveycolombia/renombrar/RenamerController.kt}}
+\mbox{\hyperlink{_renamer_controller_8kt}{Ir a la documentación de este archivo.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00001}00001\ /***************************************************************************}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00002}00002\ \ *\ Renombrador\ de\ Archivos}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00003}00003\ \ *\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00004}00004\ \ *\ Copyright\ (C)\ 2025\ by\ David\ Andres\ Gonzalez\ Gutierrez}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00005}00005\ \ *\ Email:\ surveycolombia@gmail.com}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00006}00006\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00007}00007\ \ *\ Este\ software\ se\ distribuye\ bajo\ la\ licencia\ GNU\ GPL\ v3\ con\ restricciones\ adicionales.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00008}00008\ \ *\ Puedes\ usarlo,\ modificarlo\ y\ distribuirlo\ libremente,\ siempre\ y\ cuando\ se\ mantenga}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00009}00009\ \ *\ este\ aviso\ de\ copyright\ y\ la\ licencia\ original.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00010}00010\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00011}00011\ \ *\ Derechos\ de\ Autor:}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00012}00012\ \ *\ El\ autor\ mantiene\ todos\ los\ derechos\ intelectuales\ sobre\ el\ software.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00013}00013\ \ *\ Cualquier\ modificación\ o\ redistribución\ debe\ reconocer\ la\ autoría\ original.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00014}00014\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00015}00015\ \ *\ Restricción\ Comercial:}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00016}00016\ \ *\ Queda\ prohibido\ el\ uso\ comercial\ de\ este\ software\ sin\ la\ autorización\ expresa}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00017}00017\ \ *\ y\ por\ escrito\ del\ autor.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00018}00018\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00019}00019\ \ *\ GNU\ General\ Public\ License\ v3.0:}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00020}00020\ \ *\ https://www.gnu.org/licenses/gpl-\/3.0.html}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00021}00021\ \ ***************************************************************************/}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00023}00023\ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00024}00024\ \ *\ @file\ RenamerController.kt}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00025}00025\ \ *\ @brief\ Controlador\ principal\ para\ la\ interfaz\ de\ renombrado\ de\ archivos/carpetas.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00026}00026\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00027}00027\ \ *\ @author\ David\ Andres\ Gonzalez\ Gutierrez}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00028}00028\ \ *\ @copyright\ Survey\ Colombia\ 2025\ (Licencia\ GNU\ GPL\ v3)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00029}00029\ \ *\ @version\ 1.0}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00030}00030\ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00032}00032\ package\ org.surveycolombia.renombrar}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00034}00034\ import\ javafx.beans.value.ObservableValue}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00035}00035\ import\ javafx.fxml.FXML}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00036}00036\ import\ javafx.scene.control.*}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00037}00037\ import\ javafx.scene.layout.VBox}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00038}00038\ import\ javafx.stage.DirectoryChooser}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00039}00039\ import\ javafx.stage.FileChooser}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00040}00040\ import\ javafx.stage.Stage}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00041}00041\ import\ java.io.*}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00042}00042\ import\ java.nio.file.Files}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00044}00044\ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00045}00045\ \ *\ @class\ RenamerController}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00046}00046\ \ *\ @brief\ Controlador\ FXML\ para\ la\ operación\ de\ renombrado\ masivo.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00047}00047\ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00048}00048\ \ *\ Maneja:}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00049}00049\ \ *\ -\/\ Selección\ de\ directorios\ raíz}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00050}00050\ \ *\ -\/\ Generación\ y\ carga\ de\ archivos\ CSV}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00051}00051\ \ *\ -\/\ Renombrado\ de\ carpetas\ (basado\ en\ CSV)\ y\ archivos\ (basado\ en\ sufijos)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00052}00052\ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00054}00054\ class\ RenamerController\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00055}00055\ \ \ \ \ //\ ===\ Componentes\ FXML\ ===}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00056}00056\ \ \ \ \ @FXML\ private\ lateinit\ var\ \ csvSection:\ VBox}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00057}00057\ \ \ \ \ @FXML\ private\ lateinit\ var\ buscarCarpeta:\ Label}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00058}00058\ \ \ \ \ @FXML\ private\ lateinit\ var\ btnGenerarCSV:\ Button}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00059}00059\ \ \ \ \ @FXML\ private\ lateinit\ var\ cargarCSV:\ Label}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00060}00060\ \ \ \ \ @FXML\ private\ lateinit\ var\ btnCargarCSV:\ Button}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00061}00061\ \ \ \ \ @FXML\ private\ lateinit\ var\ btnRenamer:\ Button}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00062}00062\ \ \ \ \ @FXML\ private\ lateinit\ var\ choiceColumnOldName:\ ChoiceBox<String>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00063}00063\ \ \ \ \ @FXML\ private\ lateinit\ var\ choiceColumnNewName:\ ChoiceBox<String>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00064}00064\ \ \ \ \ @FXML\ private\ lateinit\ var\ chkRenombrarCarpetas:\ CheckBox}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00065}00065\ \ \ \ \ @FXML\ private\ lateinit\ var\ chkRenombrarArchivos:\ CheckBox}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00066}00066\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00067}00067\ \ \ \ \ //\ ===\ Variables\ de\ estado\ ===}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00068}00068\ \ \ \ \ private\ var\ selectedDirectory:\ File?\ =\ null}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00069}00069\ \ \ \ \ private\ var\ selectedCsvFile:\ File?\ =\ null}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00070}00070\ \ \ \ \ private\ val\ nameMappings\ =\ mutableMapOf<String,\ String>()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00071}00071\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00072}00072\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00073}00073\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00074}00074\ \ \ \ \ \ *\ @var\ fileSuffixes}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00075}00075\ \ \ \ \ \ *\ @brief\ Lista\ de\ sufijos\ para\ renombrado\ automático\ de\ archivos.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00076}00076\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00077}00077\ \ \ \ \ \ *\ Ordenados\ por\ prioridad\ (de\ más\ largo\ a\ más\ corto).}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00078}00078\ \ \ \ \ \ *\ Formatos:}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00079}00079\ \ \ \ \ \ *\ -\/\ Compuestos:\ \`{}\_LETRA\_SUFIJO`\ (ej:\ \`{}\_A\_FAC`)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00080}00080\ \ \ \ \ \ *\ -\/\ Simples:\ \`{}\_SUFIJO`\ (ej:\ \`{}\_AD`)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00081}00081\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00082}00082\ \ \ \ \ private\ val\ fileSuffixes\ by\ lazy\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00083}00083\ \ \ \ \ \ \ \ \ val\ baseSuffixes\ =\ listOf(}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ "{}\_AD"{},\ "{}\_EP"{},\ "{}\_SJ"{},\ "{}\_DP"{},\ "{}\_DI"{},\ "{}\_FAC"{},\ "{}\_ACA"{},\ "{}\_EST"{},\ "{}\_COC"{},\ "{}\_BAN"{},\ "{}\_SIN\_BAN"{},}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ "{}\_SIN\_COC"{},\ "{}\_CER"{},\ "{}\_LOTE"{},\ "{}\_CROQUIS"{},\ "{}\_ANEXO"{},\ "{}\_PRI"{},\ "{}\_OTRO"{},\ "{}\_NC"{}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00086}00086\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00087}00087\ \ \ \ \ \ \ \ \ val\ letterSuffixes\ =\ listOf("{}\_FAC"{},\ "{}\_ACA"{},\ "{}\_EST"{},\ "{}\_COC"{},\ "{}\_BAN"{},\ "{}\_NC"{},\ "{}\_SIN\_BAN"{},\ "{}\_SIN\_COC"{},\ "{}\_CER"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00088}00088\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00089}00089\ \ \ \ \ \ \ \ \ //\ Primero\ los\ sufijos\ compuestos\ (con\ letra)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00090}00090\ \ \ \ \ \ \ \ \ val\ compoundSuffixes\ =\ ('A'..'Z').flatMap\ \{\ letter\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ letterSuffixes.map\ \{\ suffix\ -\/>\ "{}\_\$\{letter\}\$suffix"{}\ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00092}00092\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00093}00093\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00094}00094\ \ \ \ \ \ \ \ \ //\ Luego\ los\ sufijos\ simples\ (ordenados\ de\ más\ largo\ a\ más\ corto)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00095}00095\ \ \ \ \ \ \ \ \ val\ simpleSuffixes\ =\ baseSuffixes.sortedByDescending\ \{\ it.length\ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00096}00096\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00097}00097\ \ \ \ \ \ \ \ \ compoundSuffixes\ +\ simpleSuffixes}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00098}00098\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00099}00099\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00100}00100\ \ \ \ \ //\ ===\ Métodos\ FXML\ ===}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00101}00101\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00102}00102\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00103}00103\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00104}00104\ \ \ \ \ \ *\ @fn\ initialize}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00105}00105\ \ \ \ \ \ *\ @brief\ Inicializa\ el\ estado\ de\ la\ interfaz\ gráfica.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00106}00106\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00107}00107\ \ \ \ \ \ *\ Configura:}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00108}00108\ \ \ \ \ \ *\ -\/\ Valores\ iniciales\ de\ CheckBox}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00109}00109\ \ \ \ \ \ *\ -\/\ Listeners\ para\ cambios\ en\ selecciones}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00110}00110\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00111}00111\ \ \ \ \ @FXML}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00112}00112\ \ \ \ \ private\ fun\ initialize()\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00113}00113\ \ \ \ \ \ \ \ \ //\ Configuración\ inicial}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00114}00114\ \ \ \ \ \ \ \ \ btnCargarCSV.isDisable\ =\ true}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00115}00115\ \ \ \ \ \ \ \ \ btnRenamer.isDisable\ =\ true}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00116}00116\ \ \ \ \ \ \ \ \ choiceColumnNewName.isDisable\ =\ true}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00117}00117\ \ \ \ \ \ \ \ \ choiceColumnOldName.isDisable\ =\ true}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00118}00118\ \ \ \ \ \ \ \ \ btnGenerarCSV.isDisable\ =\ true}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00119}00119\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00120}00120\ \ \ \ \ \ \ \ \ //\ Configuración\ inicial\ de\ los\ CheckBox}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00121}00121\ \ \ \ \ \ \ \ \ chkRenombrarArchivos.isSelected\ =\ false}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00122}00122\ \ \ \ \ \ \ \ \ chkRenombrarCarpetas.isSelected\ =\ true}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00123}00123\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00124}00124\ \ \ \ \ \ \ \ \ //\ Listener\ para\ deshabilitar\ botón\ si\ no\ hay\ ninguna\ opción\ seleccionada}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00125}00125\ \ \ \ \ \ \ \ \ val\ checkListener\ =\ \{\_:\ ObservableValue<out\ Boolean>,\ \_:\ Boolean,\ \_:\ Boolean\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ updateUIState()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00127}00127\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00128}00128\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00129}00129\ \ \ \ \ \ \ \ \ chkRenombrarCarpetas.selectedProperty().addListener(checkListener)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00130}00130\ \ \ \ \ \ \ \ \ chkRenombrarArchivos.selectedProperty().addListener(checkListener)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00131}00131\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00132}00132\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00133}00133\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00134}00134\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00135}00135\ \ \ \ \ \ *\ @fn\ updateUIState}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00136}00136\ \ \ \ \ \ *\ @brief\ Actualiza\ el\ estado\ de\ los\ componentes\ según\ las\ selecciones\ del\ usuario.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00137}00137\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00138}00138\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00139}00139\ \ \ \ \ private\ fun\ updateUIState()\{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00140}00140\ \ \ \ \ \ \ \ \ val\ soloArchivos\ =\ chkRenombrarArchivos.isSelected\ \&\&\ !chkRenombrarCarpetas.isSelected}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00141}00141\ \ \ \ \ \ \ \ \ val\ soloCarpetas\ =\ !chkRenombrarArchivos.isSelected\ \&\&\ chkRenombrarCarpetas.isSelected}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00142}00142\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00143}00143\ \ \ \ \ \ \ \ \ //\ Mostrar/ocultar\ sección\ CSV\ según\ sea\ necesario}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00144}00144\ \ \ \ \ \ \ \ \ csvSection.isVisible\ =\ !soloArchivos}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00145}00145\ \ \ \ \ \ \ \ \ csvSection.isManaged\ =\ !soloArchivos}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00146}00146\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00147}00147\ \ \ \ \ \ \ \ \ //\ Habilitar\ botones\ según\ el\ estado}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00148}00148\ \ \ \ \ \ \ \ \ btnGenerarCSV.isDisable\ =\ selectedDirectory\ ==\ null}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00149}00149\ \ \ \ \ \ \ \ \ btnCargarCSV.isDisable\ =\ selectedDirectory\ ==\ null\ ||\ soloArchivos}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00150}00150\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00151}00151\ \ \ \ \ \ \ \ \ btnRenamer.isDisable\ =\ when\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00152}00152\ \ \ \ \ \ \ \ \ \ \ \ \ selectedDirectory\ ==\ null\ -\/>\ true}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00153}00153\ \ \ \ \ \ \ \ \ \ \ \ \ soloArchivos\ -\/>\ false}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00154}00154\ \ \ \ \ \ \ \ \ \ \ \ \ chkRenombrarCarpetas.isSelected\ -\/>\ selectedCsvFile\ ==\ null\ ||}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00155}00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ choiceColumnOldName.selectionModel.isEmpty\ ||}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00156}00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ choiceColumnNewName.selectionModel.isEmpty}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ else\ -\/>\ false}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00158}00158\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00159}00159\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00160}00160\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00161}00161\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00162}00162\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00163}00163\ \ \ \ \ \ *\ @fn\ buscarCarpetaRaizClick}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00164}00164\ \ \ \ \ \ *\ @brief\ Muestra\ un\ diálogo\ para\ seleccionar\ la\ carpeta\ raíz.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00165}00165\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00166}00166\ \ \ \ \ @FXML}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00167}00167\ \ \ \ \ private\ fun\ buscarCarpetaRaizClick()\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00168}00168\ \ \ \ \ \ \ \ \ val\ directoryChooser\ =\ DirectoryChooser().apply\ \{\ title\ =\ "{}Seleccionar\ carpeta\ raiz"{}\ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00169}00169\ \ \ \ \ \ \ \ \ selectedDirectory\ =\ directoryChooser.showDialog(Stage())}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00170}00170\ \ \ \ \ \ \ \ \ buscarCarpeta.text\ =\ selectedDirectory?.absolutePath?:\ "{}No\ ha\ seleccionado\ carpetas"{}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00171}00171\ \ \ \ \ \ \ \ \ updateUIState()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00172}00172\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00173}00173\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00174}00174\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00175}00175\ \ \ \ \ \ *\ @fn\ generarCSVConSubcarpetasClick}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00176}00176\ \ \ \ \ \ *\ @brief\ Genera\ un\ archivo\ CSV\ con\ los\ nombres\ de\ las\ subcarpetas\ del\ directorio\ seleccionado.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00177}00177\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00178}00178\ \ \ \ \ \ *\ @details\ Crea\ un\ archivo\ llamado\ "{}subcarpetas.csv"{}\ en\ la\ carpeta\ raíz\ seleccionada,}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00179}00179\ \ \ \ \ \ *\ \ \ \ \ \ \ \ \ \ con\ una\ columna\ "{}nombre\_actual"{}\ que\ lista\ todas\ las\ subcarpetas.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00180}00180\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00181}00181\ \ \ \ \ \ *\ @throws\ IOException\ Si\ ocurre\ un\ error\ al\ escribir\ el\ archivo\ CSV.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00182}00182\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00183}00183\ \ \ \ \ @FXML}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00184}00184\ \ \ \ \ private\ fun\ generarCSVConSubcarpetasClick()\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00185}00185\ \ \ \ \ \ \ \ \ if\ (selectedDirectory\ ==\ null)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00186}00186\ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Error"{},\ "{}Seleccione\ una\ carpeta\ raíz\ primero."{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00187}00187\ \ \ \ \ \ \ \ \ \ \ \ \ return}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00188}00188\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00189}00189\ \ \ \ \ \ \ \ \ val\ csvFile\ =\ File(selectedDirectory,\ "{}subcarpetas.csv"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00190}00190\ \ \ \ \ \ \ \ \ try\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ BufferedWriter(OutputStreamWriter(FileOutputStream(csvFile),\ Charsets.UTF\_8)).use\ \{\ writer\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ writer.write("{}nombre\_actual\(\backslash\)n"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00193}00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ selectedDirectory!!.listFiles\ \{\ file\ -\/>\ file.isDirectory\ \}?.forEach\ \{\ folder\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ writer.write("{}\$\{folder.name\}\(\backslash\)n"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00195}00195\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00196}00196\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00197}00197\ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Éxito"{},\ "{}CSV\ generado\ en\ \$\{csvFile.absolutePath\}"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00198}00198\ \ \ \ \ \ \ \ \ \}\ catch\ (e:\ Exception)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00199}00199\ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Error"{},\ "{}No\ se\ puede\ generar\ el\ CSV."{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00200}00200\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00201}00201\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00202}00202\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00203}00203\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00204}00204\ \ \ \ \ \ *\ @fn\ cargarArchivoCSVClick}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00205}00205\ \ \ \ \ \ *\ @brief\ Abre\ un\ diálogo\ para\ seleccionar\ un\ archivo\ CSV\ y\ carga\ sus\ columnas.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00206}00206\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00207}00207\ \ \ \ \ \ *\ @details\ Permite\ al\ usuario\ seleccionar\ un\ archivo\ CSV\ y\ carga\ sus\ encabezados}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00208}00208\ \ \ \ \ \ *\ \ \ \ \ \ \ \ \ \ en\ los\ ChoiceBox\ para\ selección\ de\ columnas.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00209}00209\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00210}00210\ \ \ \ \ @FXML}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00211}00211\ \ \ \ \ private\ fun\ cargarArchivoCSVClick()\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00212}00212\ \ \ \ \ \ \ \ \ val\ fileChooser\ =\ FileChooser().apply\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ title\ =\ "{}Seleccionar\ Archivo\ CSV"{}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ extensionFilters.add(FileChooser.ExtensionFilter("{}Archivos\ CSV"{},\ "{}*.csv"{}))}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00215}00215\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00216}00216\ \ \ \ \ \ \ \ \ selectedCsvFile\ =\ fileChooser.showOpenDialog(Stage())}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00217}00217\ \ \ \ \ \ \ \ \ cargarCSV.text\ =\ selectedCsvFile?.name\ ?:\ "{}No\ se\ seleccionó\ ningún\ archivo"{}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00218}00218\ \ \ \ \ \ \ \ \ leerColumnasCSV()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00219}00219\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00220}00220\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00221}00221\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00222}00222\ \ \ \ \ \ *\ Lee\ la\ primera\ línea\ del\ CSV\ para\ obtener\ los\ nombres\ de\ las\ columnas\ y\ llenar\ los\ ChoiceBox.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00223}00223\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00224}00224\ \ \ \ \ private\ fun\ leerColumnasCSV()\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00225}00225\ \ \ \ \ \ \ \ \ try\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00226}00226\ \ \ \ \ \ \ \ \ \ \ \ \ BufferedReader(InputStreamReader(FileInputStream(selectedCsvFile!!),\ Charsets.UTF\_8)).use\ \{\ reader\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00227}00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ firstLine\ =\ reader.readLine()\ ?:\ run\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00228}00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Error"{},\ "{}El\ archivo\ CSV\ está\ vacio"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00229}00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00230}00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00231}00231\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ separator\ =\ detectSeparator(firstLine)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00232}00232\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ header\ =\ firstLine.split(separator)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00233}00233\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00234}00234\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ if\ (header.size\ <\ 2)\{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00235}00235\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Error"{},\ "{}El\ CSV\ debe\ tener\ al\ menos\ 2\ columnas"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00236}00236\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00237}00237\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00238}00238\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00239}00239\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ choiceColumnOldName.items.setAll(header)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ choiceColumnNewName.items.setAll(header)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00241}00241\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ choiceColumnNewName.isDisable\ =\ false}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00242}00242\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ choiceColumnOldName.isDisable\ =\ false}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00243}00243\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ btnRenamer.isDisable\ =\ false}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00244}00244\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00245}00245\ \ \ \ \ \ \ \ \ \}\ catch\ (e:\ Exception)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Error"{},\ "{}No\ se\ puede\ leer\ el\ archivo\ CSV."{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00247}00247\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00248}00248\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00249}00249\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00250}00250\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00251}00251\ \ \ \ \ \ *\ @fn\ detectSeparator}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00252}00252\ \ \ \ \ \ *\ @brief\ Detecta\ el\ separador\ utilizado\ en\ un\ archivo\ CSV.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00253}00253\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00254}00254\ \ \ \ \ \ *\ @param\ line\ Primera\ línea\ del\ archivo\ CSV\ para\ analizar.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00255}00255\ \ \ \ \ \ *\ @return\ String\ con\ el\ separador\ detectado\ ("{},"{},\ "{};"{}\ o\ "{}\(\backslash\)t"{}).}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00256}00256\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00257}00257\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00258}00258\ \ \ \ \ private\ fun\ detectSeparator(line:\ String):\ String\{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00259}00259\ \ \ \ \ \ \ \ \ val\ semicolonCount\ =\ line.count\ \{\ it\ ==\ ';'\}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00260}00260\ \ \ \ \ \ \ \ \ val\ commaCount\ =\ line.count\ \{it\ ==\ ','\}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00261}00261\ \ \ \ \ \ \ \ \ val\ tabCount\ =\ line.count\{it\ ==\ '\(\backslash\)t'\}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00262}00262\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00263}00263\ \ \ \ \ \ \ \ \ return\ when\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00264}00264\ \ \ \ \ \ \ \ \ \ \ \ \ semicolonCount\ >\ commaCount\ \&\&\ semicolonCount\ >\ tabCount\ -\/>\ "{};"{}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00265}00265\ \ \ \ \ \ \ \ \ \ \ \ \ tabCount\ >\ commaCount\ \&\&\ tabCount\ >\ semicolonCount\ -\/>\ "{}\(\backslash\)t"{}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00266}00266\ \ \ \ \ \ \ \ \ \ \ \ \ else\ -\/>\ "{},"{}\ //\ Por\ defecto}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00267}00267\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00268}00268\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00269}00269\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00270}00270\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00271}00271\ \ \ \ \ \ *\ @fn\ renombrarClic}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00272}00272\ \ \ \ \ \ *\ @brief\ Ejecuta\ el\ proceso\ completo\ de\ renombrado\ según\ las\ opciones\ seleccionadas.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00273}00273\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00274}00274\ \ \ \ \ \ *\ @details\ Realiza\ validaciones\ previas\ y\ ejecuta:}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00275}00275\ \ \ \ \ \ *\ \ \ \ \ \ \ \ \ \ -\/\ Renombrado\ de\ carpetas\ (si\ está\ habilitado\ y\ hay\ CSV\ cargado)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00276}00276\ \ \ \ \ \ *\ \ \ \ \ \ \ \ \ \ -\/\ Renombrado\ de\ archivos\ (si\ está\ habilitado)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00277}00277\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00278}00278\ \ \ \ \ @FXML}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00279}00279\ \ \ \ \ private\ \ fun\ renombrarClic()\{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00280}00280\ \ \ \ \ \ \ \ \ when\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00281}00281\ \ \ \ \ \ \ \ \ \ \ \ \ selectedDirectory\ ==\ null\ -\/>\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00282}00282\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Advertencia"{},\ "{}Seleccione\ la\ carpeta\ primero."{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00283}00283\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00284}00284\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00285}00285\ \ \ \ \ \ \ \ \ \ \ \ \ !chkRenombrarCarpetas.isSelected\ \&\&\ !chkRenombrarArchivos.isSelected\ -\/>\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00286}00286\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Advertencia"{},\ "{}Seleccione\ al\ menos\ una\ opción\ de\ renombrado"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00287}00287\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00288}00288\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00289}00289\ \ \ \ \ \ \ \ \ \ \ \ \ chkRenombrarCarpetas.isSelected\ \&\&\ (selectedCsvFile\ ==\ null\ ||}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00290}00290\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ choiceColumnOldName.selectionModel.isEmpty\ ||}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00291}00291\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ choiceColumnNewName.selectionModel.isEmpty)\ -\/>\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00292}00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Advertencia"{},\ "{}Para\ renombrar\ carpetas\ selecciones\ el\ CSV\ y\ ambas\ columnas"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00293}00293\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00294}00294\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00295}00295\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00296}00296\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00297}00297\ \ \ \ \ \ \ \ \ if\ (chkRenombrarCarpetas.isSelected)\{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00298}00298\ \ \ \ \ \ \ \ \ \ \ \ \ val\ oldNameColumn\ =\ choiceColumnOldName.selectionModel.selectedItem}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00299}00299\ \ \ \ \ \ \ \ \ \ \ \ \ val\ newNameColumn\ =\ choiceColumnNewName.selectionModel.selectedItem}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00300}00300\ \ \ \ \ \ \ \ \ \ \ \ \ cargarMapeoDeCSV(oldNameColumn,\ newNameColumn)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00301}00301\ \ \ \ \ \ \ \ \ \ \ \ \ recorrerYRenombrarCarpetas(selectedDirectory!!)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00302}00302\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00303}00303\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00304}00304\ \ \ \ \ \ \ \ \ if\ (chkRenombrarArchivos.isSelected)\{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00305}00305\ \ \ \ \ \ \ \ \ \ \ \ \ recorrerYRenombrarArchivos(selectedDirectory!!)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00306}00306\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00307}00307\ \ \ \ \ \ \ \ \ mostrarAlerta("{}Completado"{},\ "{}Proceso\ de\ renombrado\ finalizado"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00308}00308\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00309}00309\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00310}00310\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00311}00311\ \ \ \ \ \ *\ @fn\ cargarMapeoDeCSV}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00312}00312\ \ \ \ \ \ *\ @brief\ Carga\ el\ mapeo\ de\ nombres\ antiguos\ a\ nuevos\ desde\ un\ archivo\ CSV.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00313}00313\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00314}00314\ \ \ \ \ \ *\ @param\ oldNameColumn\ Nombre\ de\ la\ columna\ con\ nombres\ actuales.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00315}00315\ \ \ \ \ \ *\ @param\ newNameColumn\ Nombre\ de\ la\ columna\ con\ nombres\ nuevos.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00316}00316\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00317}00317\ \ \ \ \ \ *\ @throws\ IOException\ Si\ ocurre\ un\ error\ al\ leer\ el\ archivo\ CSV.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00318}00318\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00319}00319\ \ \ \ \ private\ fun\ cargarMapeoDeCSV(oldNameColumn:\ String,\ newNameColumn:\ String)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00320}00320\ \ \ \ \ \ \ \ \ try\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00321}00321\ \ \ \ \ \ \ \ \ \ \ \ \ BufferedReader(InputStreamReader(FileInputStream(selectedCsvFile!!),\ Charsets.UTF\_8)).use\ \{\ reader\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00322}00322\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ firstLine\ =\ reader.readLine()\ ?:\ return}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00323}00323\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ separator\ =\ detectSeparator(firstLine)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00324}00324\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ header\ =\ firstLine.split(separator)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00325}00325\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ indexOld\ =\ header.indexOf(oldNameColumn)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00326}00326\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ indexNew\ =\ header.indexOf(newNameColumn)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00327}00327\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ if\ (indexOld\ ==\ -\/1\ ||\ indexNew\ ==\ -\/1)\ return}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00328}00328\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ nameMappings.clear()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00329}00329\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reader.forEachLine\ \{\ line\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00330}00330\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ values\ =\ line.split(separator)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00331}00331\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ if\ (values.size\ >\ indexOld\ \&\&\ values.size\ >\ indexNew)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00332}00332\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ nameMappings[values[indexOld]]\ =\ values[indexNew]}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00333}00333\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00334}00334\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00335}00335\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00336}00336\ \ \ \ \ \ \ \ \ \}\ catch\ (e:\ Exception)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00337}00337\ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Error"{},\ "{}No\ se\ puede\ procesar\ el\ CSV."{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00338}00338\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00339}00339\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00340}00340\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00341}00341\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00342}00342\ \ \ \ \ \ *\ @fn\ recorrerYRenombrarCarpetas}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00343}00343\ \ \ \ \ \ *\ @brief\ Renombra\ carpetas\ según\ el\ mapeo\ cargado\ desde\ CSV.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00344}00344\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00345}00345\ \ \ \ \ \ *\ @param\ directory\ Directorio\ raíz\ donde\ se\ buscarán\ las\ carpetas\ a\ renombrar.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00346}00346\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00347}00347\ \ \ \ \ \ *\ @details\ Genera\ un\ reporte\ detallado\ en\ consola\ con\ los\ resultados.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00348}00348\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00349}00349\ \ \ \ \ private\ fun\ recorrerYRenombrarCarpetas(directory:\ File)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00350}00350\ \ \ \ \ \ \ \ \ val\ errores\ =\ mutableListOf<String>()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00351}00351\ \ \ \ \ \ \ \ \ val\ exitos\ =\ mutableListOf<String>()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00352}00352\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00353}00353\ \ \ \ \ \ \ \ \ println("{}Total\ de\ carpetas\ procesadas:\ \$\{nameMappings.size\}"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00354}00354\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00355}00355\ \ \ \ \ \ \ \ \ nameMappings.forEach\ \{\ (oldName,\ newName)\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00356}00356\ \ \ \ \ \ \ \ \ \ \ \ \ if\ (!validarNombre(newName))\{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00357}00357\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ errores.add("{}Nombre\ inválido:\ '\$newName'\ -\/\ contiene\ caracteres\ prohibidos"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00358}00358\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return@forEach}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00359}00359\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00360}00360\ \ \ \ \ \ \ \ \ \ \ \ \ val\ folder\ =\ File(directory,\ oldName)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00361}00361\ \ \ \ \ \ \ \ \ \ \ \ \ if\ (folder.exists()\ \&\&\ folder.isDirectory)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00362}00362\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ newFolder\ =\ File(folder.parent,\ newName)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00363}00363\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ if\ (folder.renameTo(newFolder))\{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00364}00364\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ exitos.add("{}\$\{folder.name\}\ -\/>\ \$newName"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00365}00365\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\ else\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00366}00366\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ errores.add("{}\$\{folder.name\}\ -\/>\ \$newName"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00367}00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00368}00368\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ else\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00369}00369\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ errores.add("{}Carpeta\ no\ encontrada:\ '\$oldName'\ (mapeada\ a\ '\$newName')"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00370}00370\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00371}00371\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00372}00372\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00373}00373\ \ \ \ \ \ \ \ \ //Mostrar\ resumen\ en\ consola}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00374}00374\ \ \ \ \ \ \ \ \ println("{}\(\backslash\)n===\ RESUMEN\ DE\ RENOMBRADO\ DE\ CARPETAS\ ==="{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00375}00375\ \ \ \ \ \ \ \ \ println("{}\(\backslash\)n✅\ Carpetas\ renombradas\ con\ éxito\ (\$\{exitos.size\}):"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00376}00376\ \ \ \ \ \ \ \ \ exitos.forEach\ \{\ println(it)\ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00377}00377\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00378}00378\ \ \ \ \ \ \ \ \ //\ Mostrar\ resumen\ en\ alerta}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00379}00379\ \ \ \ \ \ \ \ \ if\ (errores.isNotEmpty())\{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00380}00380\ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Advertencia"{},\ "{}Hubo\ \$\{errores.size\}\ errores\ al\ renombrar\ carpetas.\ \(\backslash\)nVer\ consola\ para\ detalles\ completos"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00381}00381\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00382}00382\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00383}00383\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00384}00384\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00385}00385\ \ \ \ \ \ *\ @fn\ recorrerYRenombrarArchivos}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00386}00386\ \ \ \ \ \ *\ @brief\ Renombra\ archivos\ según\ los\ sufijos\ predefinidos.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00387}00387\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00388}00388\ \ \ \ \ \ *\ @param\ raiz\ Directorio\ raíz\ donde\ se\ buscarán\ los\ archivos.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00389}00389\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00390}00390\ \ \ \ \ \ *\ @details\ Los\ nuevos\ nombres\ siguen\ el\ formato:}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00391}00391\ \ \ \ \ \ *\ \ \ \ \ \ \ \ \ \ "{}[NombreCarpetaPadre][Sufijo].[extensión]"{}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00392}00392\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00393}00393\ \ \ \ \ private\ fun\ recorrerYRenombrarArchivos(raiz:\ File)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00394}00394\ \ \ \ \ \ \ \ \ val\ errores\ =\ mutableListOf<String>()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00395}00395\ \ \ \ \ \ \ \ \ val\ exitos\ =\ mutableListOf<String>()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00396}00396\ \ \ \ \ \ \ \ \ val\ archivosLargos\ =\ mutableListOf<String>()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00397}00397\ \ \ \ \ \ \ \ \ val\ archivosExistentes\ =\ mutableListOf<String>()\ //\ Nueva\ lista\ para\ archivos\ que\ ya\ existen}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00398}00398\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00399}00399\ \ \ \ \ \ \ \ \ println("{}\(\backslash\)n===\ INICIANDO\ RENOMBRADO\ DE\ ARCHIVOS\ ==="{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00400}00400\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00401}00401\ \ \ \ \ \ \ \ \ raiz.listFiles()?.filter\ \{\ it.isDirectory\ \}?.forEach\ \{\ carpetaProyecto\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00402}00402\ \ \ \ \ \ \ \ \ \ \ \ \ carpetaProyecto.walkTopDown()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00403}00403\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .filter\ \{\ it.isFile\ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00404}00404\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .forEach\ \{\ file\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00405}00405\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ fileSuffixes.firstOrNull\ \{\ suffix\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00406}00406\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ file.nameWithoutExtension.endsWith(suffix)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00407}00407\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}?.let\ \{\ suffix\ -\/>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00408}00408\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ extension\ =\ if\ (file.extension.isNotEmpty())\ "{}.\$\{file.extension\}"{}\ else\ "{}"{}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00409}00409\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ newFileName\ =\ "{}\$\{carpetaProyecto.name\}\$suffix\$extension"{}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00410}00410\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00411}00411\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ if\ (newFileName.length\ >\ 255)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00412}00412\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ archivosLargos.add("{}⚠\ Nombre\ demasiado\ largo:\ '\$\{file.name\}'\ -\/>\ '\$newFileName'"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00413}00413\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return@forEach}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00414}00414\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00415}00415\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00416}00416\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\ newFile\ =\ File(file.parent,\ newFileName)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00417}00417\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00418}00418\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ try\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00419}00419\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ if\ (newFile.exists())\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00420}00420\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ //\ Archivo\ ya\ existe\ -\/\ lo\ omitimos}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00421}00421\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ archivosExistentes.add("{}↻\ Archivo\ ya\ existente:\ '\$\{file.name\}'\ -\/>\ '\$newFileName'\ (no\ se\ renombró)"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00422}00422\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\ else\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00423}00423\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Files.move(file.toPath(),\ newFile.toPath())}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00424}00424\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ exitos.add("{}✓\ \$\{file.name\}\ -\/>\ \$newFileName"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00425}00425\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00426}00426\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\ catch\ (e:\ IOException)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00427}00427\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ errores.add("{}✗\ Error\ renombrando\ '\$\{file.name\}':\ \$\{e.message\}"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00428}00428\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00429}00429\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00430}00430\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00431}00431\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00432}00432\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00433}00433\ \ \ \ \ \ \ \ \ //\ Mostrar\ resultados\ en\ consola}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00434}00434\ \ \ \ \ \ \ \ \ printResults(exitos,\ archivosLargos,\ errores,\ archivosExistentes)\ //\ Función\ actualizada}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00435}00435\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00436}00436\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00437}00437\ \ \ \ \ \ *\ @fn\ printResults}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00438}00438\ \ \ \ \ \ *\ @brief\ Imprime\ en\ consola\ un\ resumen\ detallado\ del\ renombrado\ de\ archivos.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00439}00439\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00440}00440\ \ \ \ \ \ *\ @param\ exitos\ Lista\ de\ archivos\ renombrados\ exitosamente.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00441}00441\ \ \ \ \ \ *\ @param\ archivosLargos\ Lista\ de\ archivos\ con\ nombres\ demasiado\ largos.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00442}00442\ \ \ \ \ \ *\ @param\ errores\ Lista\ de\ errores\ durante\ el\ proceso.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00443}00443\ \ \ \ \ \ *\ @param\ archivosExistentes\ Lista\ de\ archivos\ que\ no\ se\ renombraron\ por\ existir.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00444}00444\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00445}00445\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00446}00446\ \ \ \ \ private\ fun\ printResults(}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00447}00447\ \ \ \ \ \ \ \ \ exitos:\ List<String>,}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00448}00448\ \ \ \ \ \ \ \ \ archivosLargos:\ List<String>,}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00449}00449\ \ \ \ \ \ \ \ \ errores:\ List<String>,}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00450}00450\ \ \ \ \ \ \ \ \ archivosExistentes:\ List<String>}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00451}00451\ \ \ \ \ )\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00452}00452\ \ \ \ \ \ \ \ \ println("{}\(\backslash\)n===\ RESULTADOS\ COMPLETOS\ DE\ RENOMBRADO\ ==="{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00453}00453\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00454}00454\ \ \ \ \ \ \ \ \ if\ (exitos.isNotEmpty())\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00455}00455\ \ \ \ \ \ \ \ \ \ \ \ \ println("{}\(\backslash\)n✅\ ARCHIVOS\ RENOMBRADOS\ CON\ ÉXITO\ (\$\{exitos.size\}):"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00456}00456\ \ \ \ \ \ \ \ \ \ \ \ \ exitos.forEach\ \{\ println(it)\ \}\ //\ Mostrar\ TODOS\ sin\ límite}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00457}00457\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00458}00458\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00459}00459\ \ \ \ \ \ \ \ \ if\ (archivosExistentes.isNotEmpty())\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00460}00460\ \ \ \ \ \ \ \ \ \ \ \ \ println("{}\(\backslash\)n↻\ ARCHIVOS\ EXISTENTES\ (NO\ RENOMBRADOS)\ (\$\{archivosExistentes.size\}):"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00461}00461\ \ \ \ \ \ \ \ \ \ \ \ \ archivosExistentes.forEach\ \{\ println(it)\ \}\ //\ Mostrar\ TODOS}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00462}00462\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00463}00463\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00464}00464\ \ \ \ \ \ \ \ \ if\ (archivosLargos.isNotEmpty())\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00465}00465\ \ \ \ \ \ \ \ \ \ \ \ \ println("{}\(\backslash\)n⚠\ ARCHIVOS\ CON\ NOMBRES\ DEMASIADO\ LARGOS\ (\$\{archivosLargos.size\}):"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00466}00466\ \ \ \ \ \ \ \ \ \ \ \ \ archivosLargos.forEach\ \{\ println(it)\ \}\ //\ Mostrar\ TODOS}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00467}00467\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00468}00468\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00469}00469\ \ \ \ \ \ \ \ \ if\ (errores.isNotEmpty())\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00470}00470\ \ \ \ \ \ \ \ \ \ \ \ \ println("{}\(\backslash\)n❌\ ERRORES\ DURANTE\ EL\ RENOMBRADO\ (\$\{errores.size\}):"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00471}00471\ \ \ \ \ \ \ \ \ \ \ \ \ errores.forEach\ \{\ println(it)\ \}\ //\ Mostrar\ TODOS}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00472}00472\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00473}00473\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00474}00474\ \ \ \ \ \ \ \ \ //\ Resumen\ en\ alerta\ (opcional,\ puede\ mantenerse\ igual)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00475}00475\ \ \ \ \ \ \ \ \ if\ (errores.isNotEmpty()\ ||\ archivosLargos.isNotEmpty()\ ||\ archivosExistentes.isNotEmpty())\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00476}00476\ \ \ \ \ \ \ \ \ \ \ \ \ val\ mensaje\ =\ buildString\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00477}00477\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ if\ (exitos.isNotEmpty())\ append("{}✅\ \$\{exitos.size\}\ archivos\ renombrados\(\backslash\)n"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00478}00478\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ if\ (archivosExistentes.isNotEmpty())\ append("{}↻\ \$\{archivosExistentes.size\}\ archivos\ ya\ existían\(\backslash\)n"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00479}00479\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ if\ (archivosLargos.isNotEmpty())\ append("{}⚠\ \$\{archivosLargos.size\}\ nombres\ demasiado\ largos\(\backslash\)n"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00480}00480\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ if\ (errores.isNotEmpty())\ append("{}❌\ \$\{errores.size\}\ errores\(\backslash\)n"{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00481}00481\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ append("{}Ver\ consola\ para\ detalles\ completos."{})}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00482}00482\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00483}00483\ \ \ \ \ \ \ \ \ \ \ \ \ mostrarAlerta("{}Resumen\ Completo"{},\ mensaje)}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00484}00484\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00485}00485\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00486}00486\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00487}00487\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00488}00488\ \ \ \ \ \ *\ @fn\ mostrarAlerta}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00489}00489\ \ \ \ \ \ *\ @brief\ Muestra\ una\ alerta\ en\ pantalla.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00490}00490\ \ \ \ \ \ *\ @param\ titulo\ Título\ de\ la\ alerta.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00491}00491\ \ \ \ \ \ *\ @param\ mensaje\ Contenido\ a\ mostrar.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00492}00492\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00493}00493\ \ \ \ \ private\ fun\ mostrarAlerta(titulo:\ String,\ mensaje:\ String)\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00494}00494\ \ \ \ \ \ \ \ \ Alert(Alert.AlertType.INFORMATION).apply\ \{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00495}00495\ \ \ \ \ \ \ \ \ \ \ \ \ title\ =\ titulo}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00496}00496\ \ \ \ \ \ \ \ \ \ \ \ \ contentText\ =\ mensaje}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00497}00497\ \ \ \ \ \ \ \ \ \ \ \ \ showAndWait()}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00498}00498\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00499}00499\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00500}00500\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00501}00501\ \ \ \ \ /**}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00502}00502\ \ \ \ \ \ *\ @fn\ validarNombre}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00503}00503\ \ \ \ \ \ *\ @brief\ Valida\ que\ un\ nombre\ no\ contenga\ caracteres\ prohibidos.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00504}00504\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00505}00505\ \ \ \ \ \ *\ @param\ nombre\ Nombre\ a\ validar.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00506}00506\ \ \ \ \ \ *\ @return\ Boolean\ true\ si\ el\ nombre\ es\ válido,\ false\ si\ contiene\ caracteres\ prohibidos.}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00507}00507\ \ \ \ \ \ *}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00508}00508\ \ \ \ \ \ *\ @note\ Caracteres\ prohibidos:\ /\ \(\backslash\)\ :\ *\ ?\ "{}\ <\ >\ |}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00509}00509\ \ \ \ \ \ */}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00510}00510\ }
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00511}00511\ \ \ \ \ private\ fun\ validarNombre(nombre:\ String):\ Boolean\{}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00512}00512\ \ \ \ \ \ \ \ \ val\ caracteresProhibidos\ =\ setOf('/',\ '\(\backslash\)\(\backslash\)',\ ':',\ '*',\ '?',\ '"{}',\ '<',\ '>',\ '|')}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00513}00513\ \ \ \ \ \ \ \ \ return\ !nombre.any\ \{\ it\ in\ caracteresProhibidos\}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00514}00514\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{_renamer_controller_8kt_source_l00515}00515\ \}}
+
+\end{DoxyCode}

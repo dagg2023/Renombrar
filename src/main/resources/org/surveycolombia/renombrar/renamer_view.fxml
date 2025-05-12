@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/***************************************************************************
+                              Renombrador de Archivos
+
+        Inicio               : 2025-03-02
+        Copyright            : (C) 2025 by David Andres Gonzalez Gutierrez
+        Email                : surveycolombia@gmail.com
+        Licencia             : Este software se distribuye bajo la licencia GNU GPL v3 con restricciones adicionales.
+                               Puedes usarlo, modificarlo y distribuirlo libremente, siempre y cuando se mantenga
+                               este aviso de copyright y la licencia original.
+
+        Derechos de Autor    : El autor mantiene todos los derechos intelectuales sobre el software.
+                               Cualquier modificación o redistribución debe reconocer la autoría original.
+
+        Restricción Comercial: Queda prohibido el uso comercial de este software sin la autorización expresa
+                               y por escrito del autor.
+
+        GNU GPL v3 License   : https://www.gnu.org/licenses/gpl-3.0.html
+ ***************************************************************************/
+-->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="15.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.surveycolombia.renombrar.RenamerController" style="-fx-background-color: #f5f5f5;">
+  <padding>
+    <Insets bottom="20.0" left="25.0" right="25.0" top="25.0"/>
+  </padding>
+
+  <!-- Encabezado -->
+  <Label text="[ D A G G ]" style="-fx-font-family: monospace; -fx-font-size: 12px; -fx-text-fill: #555;"/>
+  <Separator/>
+
+  <!-- Opciones de renombrado -->
+  <Label text="Opciones de renombrado:" style="-fx-font-weight: bold;"/>
+  <GridPane hgap="10" vgap="10">
+    <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS"/>
+      <ColumnConstraints hgrow="ALWAYS"/>
+    </columnConstraints>
+    <children>
+      <CheckBox fx:id="chkRenombrarCarpetas" text="Renombrar carpetas" selected="true" GridPane.columnIndex="0"/>
+      <CheckBox fx:id="chkRenombrarArchivos" text="Renombrar archivos" selected="false" GridPane.columnIndex="1"/>
+    </children>
+  </GridPane>
+
+  <!-- Sección Carpeta Raíz -->
+  <Label text="Carpeta raíz:" style="-fx-font-weight: bold;"/>
+  <Label fx:id="buscarCarpeta" text="No se ha seleccionado carpeta"
+         style="-fx-border-color: #ccc; -fx-border-radius: 3; -fx-padding: 5px; -fx-background-color: white; -fx-min-width: 300px;"/>
+  <Button text="Seleccionar carpeta raíz" onAction="#buscarCarpetaRaizClick"
+          style="-fx-min-width: 300px; -fx-background-color: #4a90e2; -fx-text-fill: white;"/>
+
+  <!-- Sección CSV (aparece dinámicamente) -->
+  <VBox fx:id="csvSection" spacing="10" alignment="CENTER">
+    <Label text="Archivo CSV:" style="-fx-font-weight: bold;"/>
+    <Button fx:id="btnGenerarCSV" text="Generar CSV de subcarpetas" onAction="#generarCSVConSubcarpetasClick"
+            style="-fx-min-width: 300px; -fx-pref-width: 300px; -fx-background-color: #50c878; -fx-text-fill: white;" disable="true"/>
+
+    <Label fx:id="cargarCSV" text="No se ha cargado CSV"
+           style="-fx-border-color: #ccc; -fx-border-radius: 3; -fx-padding: 5px; -fx-background-color: white; -fx-min-width: 300px; -fx-pref-width: 300px;"/>
+
+    <Button fx:id="btnCargarCSV" text="Cargar archivo CSV" onAction="#cargarArchivoCSVClick"
+            style="-fx-min-width: 300px; -fx-pref-width: 300px; -fx-background-color: #4a90e2; -fx-text-fill: white;" disable="true"/>
+
+    <VBox alignment="CENTER" spacing="5">
+      <Label text="Columnas CSV:" style="-fx-font-weight: bold;"/>
+      <Label text="Columna nombre actual:"/>
+      <ChoiceBox fx:id="choiceColumnOldName" style="-fx-min-width: 300px; -fx-pref-width: 300px;" disable="true"/>
+      <Label text="Columna nuevo nombre:"/>
+      <ChoiceBox fx:id="choiceColumnNewName" style="-fx-min-width: 300px; -fx-pref-width: 300px;" disable="true"/>
+    </VBox>
+  </VBox>
+
+  <!-- Botón principal -->
+  <Button fx:id="btnRenamer" text="EJECUTAR RENOMBRADO" onAction="#renombrarClic"
+          style="-fx-min-width: 300px; -fx-font-weight: bold; -fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"/>
+</VBox>

@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_dir_93201ee84df63f7bd909eb69189b056c" xml:lang="es">
+<title>Referencia del directorio src/main/kotlin/org/surveycolombia/renombrar</title>
+<indexterm><primary>Referencia del directorio src/main/kotlin/org/surveycolombia/renombrar</primary></indexterm>
+<simplesect>
+    <title>Archivos    </title>
+        <itemizedlist>
+            <listitem><para>archivo <link linkend="__renamer_8kt">Renamer.kt</link></para>
+</listitem>
+            <listitem><para>archivo <link linkend="__renamer_controller_8kt">RenamerController.kt</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+</section>
