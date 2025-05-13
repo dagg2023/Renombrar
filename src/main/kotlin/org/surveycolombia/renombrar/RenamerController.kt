@@ -42,6 +42,18 @@ import java.io.*
 import java.nio.file.Files
 
 /**
+ * Data class para contener los resultados del proceso de renombrado
+ */
+
+data class ResultadoRenombrado(
+    val exitos: MutableList<String> = mutableListOf(),
+    val errores: MutableList<String> = mutableListOf(),
+    val omitidos: MutableList<String> = mutableListOf(),
+    val archivosLargos: MutableList<String> = mutableListOf(),
+    val archivosExistentes: MutableList<String> = mutableListOf()
+)
+
+/**
  * @class RenamerController
  * @brief Controlador FXML para la operación de renombrado masivo.
  *
@@ -53,7 +65,7 @@ import java.nio.file.Files
 
 class RenamerController {
     // === Componentes FXML ===
-    @FXML private lateinit var  csvSection: VBox
+    @FXML private lateinit var csvSection: VBox
     @FXML private lateinit var buscarCarpeta: Label
     @FXML private lateinit var btnGenerarCSV: Button
     @FXML private lateinit var cargarCSV: Label
@@ -68,7 +80,6 @@ class RenamerController {
     private var selectedDirectory: File? = null
     private var selectedCsvFile: File? = null
     private val nameMappings = mutableMapOf<String, String>()
-
 
     /**
      * @var fileSuffixes
@@ -138,7 +149,7 @@ class RenamerController {
 
     private fun updateUIState(){
         val soloArchivos = chkRenombrarArchivos.isSelected && !chkRenombrarCarpetas.isSelected
-        val soloCarpetas = !chkRenombrarArchivos.isSelected && chkRenombrarCarpetas.isSelected
+        //val soloCarpetas = !chkRenombrarArchivos.isSelected && chkRenombrarCarpetas.isSelected
 
         // Mostrar/ocultar sección CSV según sea necesario
         csvSection.isVisible = !soloArchivos
@@ -219,35 +230,62 @@ class RenamerController {
     }
 
     /**
-     * Lee la primera línea del CSV para obtener los nombres de las columnas y llenar los ChoiceBox.
+     * @fn leerColumnasCSV
+     * @brief Lee la primera línea del archivo CSV seleccionado para extraer los nombres de columnas.
+     *
+     * @details
+     * - Detecta el separador utilizado (coma, punto y coma o tabulación).
+     * - Llena los ChoiceBox `choiceColumnOldName` y `choiceColumnNewName` con los nombres de las columnas.
+     * - Habilita los ChoiceBox y el botón de renombrado si el archivo es válido.
+     *
+     * @warning Muestra una alerta si el archivo no es válido o tiene menos de dos columnas.
      */
+
     private fun leerColumnasCSV() {
-        try {
-            BufferedReader(InputStreamReader(FileInputStream(selectedCsvFile!!), Charsets.UTF_8)).use { reader ->
-                val firstLine = reader.readLine() ?: run {
-                    mostrarAlerta("Error", "El archivo CSV está vacio")
-                    return
-                }
-                val separator = detectSeparator(firstLine)
-                val header = firstLine.split(separator)
-
-                if (header.size < 2){
-                    mostrarAlerta("Error", "El CSV debe tener al menos 2 columnas")
-                    return
-                }
-
-                choiceColumnOldName.items.setAll(header)
-                choiceColumnNewName.items.setAll(header)
-                choiceColumnNewName.isDisable = false
-                choiceColumnOldName.isDisable = false
-                btnRenamer.isDisable = false
-            }
-        } catch (e: Exception) {
-            mostrarAlerta("Error", "No se puede leer el archivo CSV.")
+        val (header, _) = leerEncabezadoYSeparador(selectedCsvFile) ?: run {
+            mostrarAlerta("Error", "Error al leer el archivo CSV")
+            return
         }
+
+        if (header.size < 2) {
+            mostrarAlerta("Error", "El CSV debe tener al menos 2 columnas")
+            return
+        }
+
+        choiceColumnOldName.items.setAll(header)
+        choiceColumnNewName.items.setAll(header)
+        choiceColumnNewName.isDisable = false
+        choiceColumnOldName.isDisable = false
+        btnRenamer.isDisable = false
     }
 
     /**
+     * @fn leerEncabezadoYSeparador
+     * @brief Lee la primera línea del archivo CSV para extraer los encabezados y detectar el separador.
+     *
+     * @param archivo Archivo CSV a procesar.
+     * @return Par con una lista de encabezados y el separador detectado, o `null` si falla.
+     *
+     * @details
+     * - Usa UTF-8 para la lectura del archivo.
+     * - Utiliza la función `detectSeparator` para determinar si se usa coma, punto y coma o tabulador.
+     */
+
+
+    private fun leerEncabezadoYSeparador(archivo: File?): Pair<List<String>, String>? {
+        if (archivo == null) return null
+        return try {
+            BufferedReader(InputStreamReader(FileInputStream(archivo), Charsets.UTF_8)).use { reader ->
+                val firstLine = reader.readLine() ?: return null
+                val separator = detectSeparator(firstLine)
+                Pair(firstLine.split(separator), separator)
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+        /**
      * @fn detectSeparator
      * @brief Detecta el separador utilizado en un archivo CSV.
      *
@@ -316,16 +354,16 @@ class RenamerController {
      *
      * @throws IOException Si ocurre un error al leer el archivo CSV.
      */
-    private fun cargarMapeoDeCSV(oldNameColumn: String, newNameColumn: String) {
+    private  fun cargarMapeoDeCSV(oldNameColumn: String, newNameColumn: String) {
+        val (header, separator) = leerEncabezadoYSeparador(selectedCsvFile) ?: return
+        val indexOld = header.indexOf(oldNameColumn)
+        val indexNew = header.indexOf(newNameColumn)
+        if (indexOld == -1 || indexNew == -1) return
+
+        nameMappings.clear()
         try {
             BufferedReader(InputStreamReader(FileInputStream(selectedCsvFile!!), Charsets.UTF_8)).use { reader ->
-                val firstLine = reader.readLine() ?: return
-                val separator = detectSeparator(firstLine)
-                val header = firstLine.split(separator)
-                val indexOld = header.indexOf(oldNameColumn)
-                val indexNew = header.indexOf(newNameColumn)
-                if (indexOld == -1 || indexNew == -1) return
-                nameMappings.clear()
+                reader.readLine() // Saltar encabezado
                 reader.forEachLine { line ->
                     val values = line.split(separator)
                     if (values.size > indexOld && values.size > indexNew) {
@@ -335,6 +373,11 @@ class RenamerController {
             }
         } catch (e: Exception) {
             mostrarAlerta("Error", "No se puede procesar el CSV.")
+        }
+
+        val raizNombre = selectedDirectory?.name
+        if (nameMappings.any{it.key == raizNombre || it.value == raizNombre}){
+            mostrarAlerta("Advertencia", "El CSV contiene referencias al nombre de la carpeta raiz '$raizNombre' .\nEvita renombrala pra prevenir errores.")
         }
     }
 
@@ -347,60 +390,96 @@ class RenamerController {
      * @details Genera un reporte detallado en consola con los resultados.
      */
     private fun recorrerYRenombrarCarpetas(directory: File) {
-        val errores = mutableListOf<String>()
-        val exitos = mutableListOf<String>()
+        val resultado = ResultadoRenombrado(
+            exitos = mutableListOf(),
+            errores = mutableListOf(),
+            omitidos = mutableListOf()
+        )
 
-        println("Total de carpetas procesadas: ${nameMappings.size}")
+        val raizNombre = directory.name //Nombre actual de la carpeta raiz
 
         nameMappings.forEach { (oldName, newName) ->
-            if (!validarNombre(newName)){
-                errores.add("Nombre inválido: '$newName' - contiene caracteres prohibidos")
+            val folder = File(directory, oldName)
+            val target = File(folder.parent, newName)
+
+            if(target.canonicalFile == directory.canonicalFile){
+                resultado.omitidos.add("Omitido por seguridad: intento de sobrescribir la carpeta raíz con '$newName'")
                 return@forEach
             }
-            val folder = File(directory, oldName)
-            if (folder.exists() && folder.isDirectory) {
-                val newFolder = File(folder.parent, newName)
 
-                if (newFolder.exists()){
-                    errores.add("Ya existe una carpeta con el nombre '$newName'")
-                    return@forEach
-                }
-
-                try {
-                    if (folder.renameTo(newFolder)){
-                        exitos.add("${folder.name} -> $newName")
-                    } else {
-                        errores.add("${folder.name} -> $newName")
+            when {
+                newName.isBlank() -> resultado.omitidos.add("Sin nombre nuevo: '$oldName' (omitido)")
+                !validarNombre(newName) -> resultado.errores.add("Nombre inválido: '$newName'")
+                else -> {
+                    val folder = File(directory, oldName)
+                    when {
+                        !folder.exists() || !folder.isDirectory ->
+                            resultado.errores.add("Carpeta no encontrada: '$oldName'")
+                        File(folder.parent, newName).exists() ->
+                            resultado.errores.add("Ya existe: '$newName'")
+                        folder.renameTo(File(folder.parent, newName)) ->
+                            resultado.exitos.add("${folder.name} -> $newName")
+                        else ->
+                            resultado.errores.add("Error renombrando: '${folder.name}'")
                     }
-                }catch (e: Exception){
-                    errores.add("${folder.name} -> $newName")
                 }
-            } else {
-                errores.add("Carpeta no encontrada: '$oldName' (mapeada a '$newName')")
             }
         }
 
-        //Mostrar resumen en consola
+        generarResumenYLog(resultado, "RESUMEN DE RENOMBRADO DE CARPETAS")
+    }
 
-        val resumen = StringBuilder()
-        resumen.appendLine("\n=== RESUMEN DE RENOMBRADO DE CARPETAS ===")
-        resumen.appendLine("\n✅ Carpetas renombradas con éxito (${exitos.size}):")
-        exitos.forEach{resumen.appendLine(it)}
+    /**
+     * @fn generarResumenYLog
+     * @brief Genera un resumen del proceso de renombrado y lo muestra en consola y en pantalla.
+     *
+     * @param resultado Objeto ResultadoRenombrado que contiene listas de éxitos, errores, omitidos, etc.
+     * @param titulo Título descriptivo para identificar el tipo de resumen (archivos o carpetas).
+     *
+     * @details
+     * - Imprime el resumen completo en consola.
+     * - Guarda el resumen en un archivo de log en la carpeta seleccionada.
+     * - Muestra un resumen resumido en una alerta gráfica.
+     */
 
-        resumen.appendLine("\n❌ Errores (${errores.size}):")
-        errores.forEach { resumen.appendLine(it) }
-
-        println(resumen.toString())
-        escribeLog(resumen.toString())
-
-        // Mostrar resumen en alerta
-        val mensaje = if (errores.isNotEmpty()){
-           "Hubo ${errores.size} errores al renombrar carpetas.\nVer consola para detalles."
-        }else {
-            "Todas las carpetas se renombraron correctamente"
+    private fun generarResumenYLog(resultado: ResultadoRenombrado, titulo: String) {
+        val resumen = buildString {
+            appendLine("\n=== $titulo ===")
+            with(resultado) {
+                listOf(
+                    "✅ Éxitos" to exitos,
+                    "❌ Errores" to errores,
+                    "⚠ Omitidos" to omitidos,
+                    "📏 Archivos largos" to archivosLargos,
+                    "🔄 Archivos existentes" to archivosExistentes
+                ).forEach { (tituloSeccion, lista) ->
+                    if (lista.isNotEmpty()) {
+                        appendLine("\n$tituloSeccion (${lista.size}):")
+                        lista.forEach { appendLine(it) }
+                    }
+                }
+            }
         }
 
-        mostrarAlerta("Resumen", mensaje)
+        println(resumen)
+        escribeLog(resumen)
+
+        val mensajeAlerta = buildString {
+            with(resultado) {
+                append("RESUMEN ($titulo):\n")
+                if (exitos.isNotEmpty()) append("✅ ${exitos.size} exitos\n")
+                if (errores.isNotEmpty()) append("❌ ${errores.size} errores\n")
+                if (omitidos.isNotEmpty()) append("⚠ ${omitidos.size} omitidos\n")
+                if (archivosLargos.isNotEmpty()) append("📏 ${archivosLargos.size} archivos largos\n")
+                if (archivosExistentes.isNotEmpty()) append("🔄 ${archivosExistentes.size} archivos existentes\n")
+            }
+            append("\nVer consola para detalles completos.")
+        }
+
+        // Mostrar alerta solo si hay contenido
+        if (mensajeAlerta.isNotBlank()) {
+            mostrarAlerta("Resumen del proceso", mensajeAlerta)
+        }
     }
 
     /**
@@ -413,12 +492,13 @@ class RenamerController {
      *          "[NombreCarpetaPadre][Sufijo].[extensión]"
      */
     private fun recorrerYRenombrarArchivos(raiz: File) {
-        val errores = mutableListOf<String>()
-        val exitos = mutableListOf<String>()
-        val archivosLargos = mutableListOf<String>()
-        val archivosExistentes = mutableListOf<String>() // Nueva lista para archivos que ya existen
-
-        println("\n=== INICIANDO RENOMBRADO DE ARCHIVOS ===")
+        val resultado = ResultadoRenombrado(
+            exitos = mutableListOf(),
+            errores = mutableListOf(),
+            omitidos = mutableListOf(),
+            archivosLargos = mutableListOf(),
+            archivosExistentes = mutableListOf()
+        )
 
         raiz.listFiles()?.filter { it.isDirectory }?.forEach { carpetaProyecto ->
             carpetaProyecto.walkTopDown()
@@ -430,106 +510,32 @@ class RenamerController {
                         val extension = if (file.extension.isNotEmpty()) ".${file.extension}" else ""
                         val newFileName = "${carpetaProyecto.name}$suffix$extension"
 
-                        if (newFileName.length > 255) {
-                            archivosLargos.add("⚠ Nombre demasiado largo: '${file.name}' -> '$newFileName'")
-                            return@forEach
-                        }
-
-                        val newFile = File(file.parent, newFileName)
-
-                        try {
-                            if (newFile.exists()) {
-                                // Archivo ya existe - lo omitimos
-                                archivosExistentes.add("↻ Archivo ya existente: '${file.name}' -> '$newFileName' (no se renombró)")
-                            } else {
-                                Files.move(file.toPath(), newFile.toPath())
-                                exitos.add("✓ ${file.name} -> $newFileName")
+                        when {
+                            newFileName.length > 255 ->
+                                resultado.archivosLargos.add("Nombre largo: '${file.name}'")
+                            newFileName.isBlank() ->
+                                resultado.omitidos.add("Sin nombre nuevo: '${file.name}'")
+                            else -> {
+                                val newFile = File(file.parent, newFileName)
+                                when {
+                                    newFile.exists() ->
+                                        resultado.archivosExistentes.add("Ya existe: '$newFileName'")
+                                    else -> try {
+                                        Files.move(file.toPath(), newFile.toPath())
+                                        resultado.exitos.add("${file.name} -> $newFileName")
+                                    } catch (e: IOException) {
+                                        resultado.errores.add("Error: '${file.name}'")
+                                    }
+                                }
                             }
-                        } catch (e: IOException) {
-                            errores.add("✗ Error renombrando '${file.name}': ${e.message}")
                         }
                     }
                 }
         }
 
-        // Mostrar resultados en consola
-        printResults(exitos, archivosLargos, errores, archivosExistentes) // Función actualizada
+        generarResumenYLog(resultado, "RESUMEN DE RENOMBRADO DE ARCHIVOS")
     }
-    /**
-     * @fn printResults
-     * @brief Imprime en consola un resumen detallado del renombrado de archivos.
-     *
-     * @param exitos Lista de archivos renombrados exitosamente.
-     * @param archivosLargos Lista de archivos con nombres demasiado largos.
-     * @param errores Lista de errores durante el proceso.
-     * @param archivosExistentes Lista de archivos que no se renombraron por existir.
-     */
 
-    private fun printResults(
-        exitos: List<String>,
-        archivosLargos: List<String>,
-        errores: List<String>,
-        archivosExistentes: List<String>
-    ) {
-        println("\n=== RESULTADOS COMPLETOS DE RENOMBRADO ===")
-
-        if (exitos.isNotEmpty()) {
-            println("\n✅ ARCHIVOS RENOMBRADOS CON ÉXITO (${exitos.size}):")
-            exitos.forEach { println(it) } // Mostrar TODOS sin límite
-        }
-
-        if (archivosExistentes.isNotEmpty()) {
-            println("\n↻ ARCHIVOS EXISTENTES (NO RENOMBRADOS) (${archivosExistentes.size}):")
-            archivosExistentes.forEach { println(it) } // Mostrar TODOS
-        }
-
-        if (archivosLargos.isNotEmpty()) {
-            println("\n⚠ ARCHIVOS CON NOMBRES DEMASIADO LARGOS (${archivosLargos.size}):")
-            archivosLargos.forEach { println(it) } // Mostrar TODOS
-        }
-
-        if (errores.isNotEmpty()) {
-            println("\n❌ ERRORES DURANTE EL RENOMBRADO (${errores.size}):")
-            errores.forEach { println(it) } // Mostrar TODOS
-        }
-
-        // Resumen en alerta (opcional, puede mantenerse igual)
-        if (errores.isNotEmpty() || archivosLargos.isNotEmpty() || archivosExistentes.isNotEmpty()) {
-            val mensaje = buildString {
-                if (exitos.isNotEmpty()) append("✅ ${exitos.size} archivos renombrados\n")
-                if (archivosExistentes.isNotEmpty()) append("↻ ${archivosExistentes.size} archivos ya existían\n")
-                if (archivosLargos.isNotEmpty()) append("⚠ ${archivosLargos.size} nombres demasiado largos\n")
-                if (errores.isNotEmpty()) append("❌ ${errores.size} errores\n")
-                append("Ver consola para detalles completos.")
-            }
-
-            val resumen = StringBuilder()
-            resumen.appendLine("\n=== RESULTADOS COMPLETOS DE RENOMBRADO ===")
-
-            if (exitos.isNotEmpty()){
-                resumen.appendLine("\n✅ ARCHIVOS RENOMBRADOS CON ÉXITO (${exitos.size}):")
-                exitos.forEach{resumen.appendLine(it)}
-            }
-
-            if (archivosExistentes.isNotEmpty()) {
-                resumen.appendLine("\n↻ ARCHIVOS EXISTENTES (NO RENOMBRADOS) (${archivosExistentes.size}):")
-                archivosExistentes.forEach { resumen.appendLine(it) }
-            }
-
-            if (archivosLargos.isNotEmpty()) {
-                resumen.appendLine("\n⚠ ARCHIVOS CON NOMBRES DEMASIADO LARGOS (${archivosLargos.size}):")
-                archivosLargos.forEach { resumen.appendLine(it) }
-            }
-
-            if (errores.isNotEmpty()) {
-                resumen.appendLine("\n❌ ERRORES DURANTE EL RENOMBRADO (${errores.size}):")
-                errores.forEach { resumen.appendLine(it) }
-            }
-            println(resumen.toString())
-            escribeLog(resumen.toString())
-            mostrarAlerta("Resumen Completo", mensaje)
-        }
-    }
 
     /**
      * @fn mostrarAlerta
@@ -555,9 +561,9 @@ class RenamerController {
      * @note Caracteres prohibidos: / \ : * ? " < > |
      */
 
-    private fun validarNombre(nombre: String): Boolean{
+    private fun validarNombre(nombre: String): Boolean {
         val caracteresProhibidos = setOf('/', '\\', ':', '*', '?', '"', '<', '>', '|')
-        return !nombre.any { it in caracteresProhibidos}
+        return !nombre.any { it in caracteresProhibidos }
     }
 
     /**
@@ -567,22 +573,21 @@ class RenamerController {
      * @param mensaje El mensaje a escribir en el log.
      */
 
-    private  fun escribeLog(mensaje: String){
+    private fun escribeLog(mensaje: String) {
         try {
-            if (selectedDirectory == null) return
-            val logFile = File(selectedDirectory, "Renombrador.log")
-            val timestamp = java.time.LocalDateTime.now()
-            val encabezado = buildString {
-                appendLine("=".repeat(80))
-                appendLine("🕒 EJECUCIÓN DEL RENOMBRADOR: $timestamp")
-                appendLine("=".repeat(80))
+            selectedDirectory?.let {
+                val logFile = File(it, "Renombrador.log")
+                val timestamp = java.time.LocalDateTime.now()
+                val encabezado = """
+                    |${"=".repeat(80)}
+                    |🕒 EJECUCIÓN DEL RENOMBRADOR: $timestamp
+                    |${"=".repeat(80)}
+                """.trimMargin()
+                logFile.appendText("$encabezado\n$mensaje\n")
             }
-            logFile.appendText(encabezado)
-            logFile.appendText("$mensaje\n")
         } catch (e: Exception) {
-            println("No se pudo escribir en el archivo de log: ${e.message}")
+            println("Error escribiendo log: ${e.message}")
         }
     }
-
 
 }
