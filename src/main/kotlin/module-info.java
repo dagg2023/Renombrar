@@ -5,6 +5,7 @@ module org.surveycolombia.renombrar {
 
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
+    requires java.logging;
 
     opens org.surveycolombia.renombrar to javafx.fxml;
     exports org.surveycolombia.renombrar;

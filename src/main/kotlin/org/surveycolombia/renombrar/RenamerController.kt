@@ -360,9 +360,19 @@ class RenamerController {
             val folder = File(directory, oldName)
             if (folder.exists() && folder.isDirectory) {
                 val newFolder = File(folder.parent, newName)
-                if (folder.renameTo(newFolder)){
-                    exitos.add("${folder.name} -> $newName")
-                } else {
+
+                if (newFolder.exists()){
+                    errores.add("Ya existe una carpeta con el nombre '$newName'")
+                    return@forEach
+                }
+
+                try {
+                    if (folder.renameTo(newFolder)){
+                        exitos.add("${folder.name} -> $newName")
+                    } else {
+                        errores.add("${folder.name} -> $newName")
+                    }
+                }catch (e: Exception){
                     errores.add("${folder.name} -> $newName")
                 }
             } else {
@@ -371,14 +381,26 @@ class RenamerController {
         }
 
         //Mostrar resumen en consola
-        println("\n=== RESUMEN DE RENOMBRADO DE CARPETAS ===")
-        println("\n✅ Carpetas renombradas con éxito (${exitos.size}):")
-        exitos.forEach { println(it) }
+
+        val resumen = StringBuilder()
+        resumen.appendLine("\n=== RESUMEN DE RENOMBRADO DE CARPETAS ===")
+        resumen.appendLine("\n✅ Carpetas renombradas con éxito (${exitos.size}):")
+        exitos.forEach{resumen.appendLine(it)}
+
+        resumen.appendLine("\n❌ Errores (${errores.size}):")
+        errores.forEach { resumen.appendLine(it) }
+
+        println(resumen.toString())
+        escribeLog(resumen.toString())
 
         // Mostrar resumen en alerta
-        if (errores.isNotEmpty()){
-            mostrarAlerta("Advertencia", "Hubo ${errores.size} errores al renombrar carpetas. \nVer consola para detalles completos")
+        val mensaje = if (errores.isNotEmpty()){
+           "Hubo ${errores.size} errores al renombrar carpetas.\nVer consola para detalles."
+        }else {
+            "Todas las carpetas se renombraron correctamente"
         }
+
+        mostrarAlerta("Resumen", mensaje)
     }
 
     /**
@@ -480,6 +502,31 @@ class RenamerController {
                 if (errores.isNotEmpty()) append("❌ ${errores.size} errores\n")
                 append("Ver consola para detalles completos.")
             }
+
+            val resumen = StringBuilder()
+            resumen.appendLine("\n=== RESULTADOS COMPLETOS DE RENOMBRADO ===")
+
+            if (exitos.isNotEmpty()){
+                resumen.appendLine("\n✅ ARCHIVOS RENOMBRADOS CON ÉXITO (${exitos.size}):")
+                exitos.forEach{resumen.appendLine(it)}
+            }
+
+            if (archivosExistentes.isNotEmpty()) {
+                resumen.appendLine("\n↻ ARCHIVOS EXISTENTES (NO RENOMBRADOS) (${archivosExistentes.size}):")
+                archivosExistentes.forEach { resumen.appendLine(it) }
+            }
+
+            if (archivosLargos.isNotEmpty()) {
+                resumen.appendLine("\n⚠ ARCHIVOS CON NOMBRES DEMASIADO LARGOS (${archivosLargos.size}):")
+                archivosLargos.forEach { resumen.appendLine(it) }
+            }
+
+            if (errores.isNotEmpty()) {
+                resumen.appendLine("\n❌ ERRORES DURANTE EL RENOMBRADO (${errores.size}):")
+                errores.forEach { resumen.appendLine(it) }
+            }
+            println(resumen.toString())
+            escribeLog(resumen.toString())
             mostrarAlerta("Resumen Completo", mensaje)
         }
     }
@@ -512,4 +559,30 @@ class RenamerController {
         val caracteresProhibidos = setOf('/', '\\', ':', '*', '?', '"', '<', '>', '|')
         return !nombre.any { it in caracteresProhibidos}
     }
+
+    /**
+     * @fn escribirLog
+     * @brief Escribe un mensaje en el archivo de log en la carpeta raíz seleccionada.
+     *
+     * @param mensaje El mensaje a escribir en el log.
+     */
+
+    private  fun escribeLog(mensaje: String){
+        try {
+            if (selectedDirectory == null) return
+            val logFile = File(selectedDirectory, "Renombrador.log")
+            val timestamp = java.time.LocalDateTime.now()
+            val encabezado = buildString {
+                appendLine("=".repeat(80))
+                appendLine("🕒 EJECUCIÓN DEL RENOMBRADOR: $timestamp")
+                appendLine("=".repeat(80))
+            }
+            logFile.appendText(encabezado)
+            logFile.appendText("$mensaje\n")
+        } catch (e: Exception) {
+            println("No se pudo escribir en el archivo de log: ${e.message}")
+        }
+    }
+
+
 }
