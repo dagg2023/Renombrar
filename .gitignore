@@ -1,27 +1,26 @@
-# Archivos y carpetas de IntelliJ IDEA
+# IntelliJ IDEA
 .idea/
 *.iml
 
-# Carpetas de compilación
+# Compilación Maven/Gradle
+target/
 build/
 out/
-
-# Archivos de logs
-*.log
-
-# Archivos temporales del sistema
-*.swp
-*.tmp
-*.bak
-
-# Archivos de configuración de inspección/QA
-qodana.yaml
 
 # Archivos de empaquetado
 *.jar
 *.war
 *.ear
 
-# Configuración específica de usuario
+# Logs y temporales
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Configuración de inspección/QA
+qodana.yaml
+
+# Archivos específicos de usuario
 .DS_Store
 Thumbs.db

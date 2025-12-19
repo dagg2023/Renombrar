@@ -20,15 +20,6 @@
  * https://www.gnu.org/licenses/gpl-3.0.html
  ***************************************************************************/
 
-/**
- * @file RenamerController.kt
- * @brief Controlador principal para la interfaz de renombrado de archivos/carpetas.
- *
- * @author David Andres Gonzalez Gutierrez
- * @copyright Survey Colombia 2025 (Licencia GNU GPL v3)
- * @version 1.0
- */
-
 package org.surveycolombia.renombrar
 
 import javafx.beans.value.ObservableValue
@@ -40,10 +31,8 @@ import javafx.stage.FileChooser
 import javafx.stage.Stage
 import java.io.*
 import java.nio.file.Files
-
-/**
- * Data class para contener los resultados del proceso de renombrado
- */
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class ResultadoRenombrado(
     val exitos: MutableList<String> = mutableListOf(),
@@ -53,17 +42,8 @@ data class ResultadoRenombrado(
     val archivosExistentes: MutableList<String> = mutableListOf()
 )
 
-/**
- * @class RenamerController
- * @brief Controlador FXML para la operación de renombrado masivo.
- *
- * Maneja:
- * - Selección de directorios raíz
- * - Generación y carga de archivos CSV
- * - Renombrado de carpetas (basado en CSV) y archivos (basado en sufijos)
- */
-
 class RenamerController {
+
     // === Componentes FXML ===
     @FXML private lateinit var csvSection: VBox
     @FXML private lateinit var buscarCarpeta: Label
@@ -81,513 +61,344 @@ class RenamerController {
     private var selectedCsvFile: File? = null
     private val nameMappings = mutableMapOf<String, String>()
 
-    /**
-     * @var fileSuffixes
-     * @brief Lista de sufijos para renombrado automático de archivos.
-     *
-     * Ordenados por prioridad (de más largo a más corto).
-     * Formatos:
-     * - Compuestos: `_LETRA_SUFIJO` (ej: `_A_FAC`)
-     * - Simples: `_SUFIJO` (ej: `_AD`)
-     */
     private val fileSuffixes by lazy {
         val baseSuffixes = listOf(
-            "_AD", "_EP", "_SJ", "_DP", "_DI", "_FAC", "_ACA", "_EST", "_COC", "_BAN", "_SIN_BAN",
-            "_SIN_COC", "_CER", "_LOTE", "_CROQUIS", "_ANEXO", "_PRI", "_OTRO", "_NC"
+            "_SIN_BAN", "_SIN_COC", "_CROQUIS", "_ANEXO",
+            "_AD", "_EP", "_SJ", "_DP", "_DI", "_FAC", "_ACA",
+            "_EST", "_COC", "_BAN", "_CER", "_LOTE", "_PRI", "_OTRO", "_NC"
         )
-        val letterSuffixes = listOf("_FAC", "_ACA", "_EST", "_COC", "_BAN", "_NC", "_SIN_BAN", "_SIN_COC", "_CER")
 
-        // Primero los sufijos compuestos (con letra)
+        val letterSuffixes = listOf(
+            "_FAC", "_ACA", "_EST", "_COC", "_BAN",
+            "_NC", "_SIN_BAN", "_SIN_COC", "_CER"
+        )
+
         val compoundSuffixes = ('A'..'Z').flatMap { letter ->
             letterSuffixes.map { suffix -> "_${letter}$suffix" }
         }
 
-        // Luego los sufijos simples (ordenados de más largo a más corto)
-        val simpleSuffixes = baseSuffixes.sortedByDescending { it.length }
-
-        compoundSuffixes + simpleSuffixes
+        compoundSuffixes + baseSuffixes.sortedByDescending { it.length }
     }
 
-    // === Métodos FXML ===
-
-
-    /**
-     * @fn initialize
-     * @brief Inicializa el estado de la interfaz gráfica.
-     *
-     * Configura:
-     * - Valores iniciales de CheckBox
-     * - Listeners para cambios en selecciones
-     */
     @FXML
     private fun initialize() {
-        // Configuración inicial
+
         btnCargarCSV.isDisable = true
-        btnRenamer.isDisable = true
         choiceColumnNewName.isDisable = true
         choiceColumnOldName.isDisable = true
         btnGenerarCSV.isDisable = true
 
-        // Configuración inicial de los CheckBox
+        // 🔧 EJECUTAR SIEMPRE ACTIVO
+        btnRenamer.isDisable = false
+
         chkRenombrarArchivos.isSelected = false
         chkRenombrarCarpetas.isSelected = true
 
-        // Listener para deshabilitar botón si no hay ninguna opción seleccionada
-        val checkListener = {_: ObservableValue<out Boolean>, _: Boolean, _: Boolean ->
-            updateUIState()
-        }
+        val checkListener =
+            { _: ObservableValue<out Boolean>, _: Boolean, _: Boolean ->
+                updateUIState()
+            }
 
         chkRenombrarCarpetas.selectedProperty().addListener(checkListener)
         chkRenombrarArchivos.selectedProperty().addListener(checkListener)
-
     }
 
-    /**
-     * @fn updateUIState
-     * @brief Actualiza el estado de los componentes según las selecciones del usuario.
-     */
+    private fun updateUIState() {
 
-    private fun updateUIState(){
-        val soloArchivos = chkRenombrarArchivos.isSelected && !chkRenombrarCarpetas.isSelected
-        //val soloCarpetas = !chkRenombrarArchivos.isSelected && chkRenombrarCarpetas.isSelected
+        val soloArchivos =
+            chkRenombrarArchivos.isSelected && !chkRenombrarCarpetas.isSelected
 
-        // Mostrar/ocultar sección CSV según sea necesario
         csvSection.isVisible = !soloArchivos
         csvSection.isManaged = !soloArchivos
 
-        // Habilitar botones según el estado
         btnGenerarCSV.isDisable = selectedDirectory == null
         btnCargarCSV.isDisable = selectedDirectory == null || soloArchivos
 
-        btnRenamer.isDisable = when {
-            selectedDirectory == null -> true
-            soloArchivos -> false
-            chkRenombrarCarpetas.isSelected -> selectedCsvFile == null ||
-                    choiceColumnOldName.selectionModel.isEmpty ||
-                    choiceColumnNewName.selectionModel.isEmpty
-            else -> false
-        }
-
-    }
-
-    /**
-     * @fn buscarCarpetaRaizClick
-     * @brief Muestra un diálogo para seleccionar la carpeta raíz.
-     */
-    @FXML
-    private fun buscarCarpetaRaizClick() {
-        val directoryChooser = DirectoryChooser().apply { title = "Seleccionar carpeta raiz" }
-        selectedDirectory = directoryChooser.showDialog(Stage())
-        buscarCarpeta.text = selectedDirectory?.absolutePath?: "No ha seleccionado carpetas"
-        updateUIState()
-    }
-
-    /**
-     * @fn generarCSVConSubcarpetasClick
-     * @brief Genera un archivo CSV con los nombres de las subcarpetas del directorio seleccionado.
-     *
-     * @details Crea un archivo llamado "subcarpetas.csv" en la carpeta raíz seleccionada,
-     *          con una columna "nombre_actual" que lista todas las subcarpetas.
-     *
-     * @throws IOException Si ocurre un error al escribir el archivo CSV.
-     */
-    @FXML
-    private fun generarCSVConSubcarpetasClick() {
-        if (selectedDirectory == null) {
-            mostrarAlerta("Error", "Seleccione una carpeta raíz primero.")
-            return
-        }
-        val csvFile = File(selectedDirectory, "subcarpetas.csv")
-        try {
-            BufferedWriter(OutputStreamWriter(FileOutputStream(csvFile), Charsets.UTF_8)).use { writer ->
-                writer.write("nombre_actual\n")
-                selectedDirectory!!.listFiles { file -> file.isDirectory }?.forEach { folder ->
-                    writer.write("${folder.name}\n")
-                }
-            }
-            mostrarAlerta("Éxito", "CSV generado en ${csvFile.absolutePath}")
-        } catch (e: Exception) {
-            mostrarAlerta("Error", "No se puede generar el CSV.")
-        }
-    }
-
-    /**
-     * @fn cargarArchivoCSVClick
-     * @brief Abre un diálogo para seleccionar un archivo CSV y carga sus columnas.
-     *
-     * @details Permite al usuario seleccionar un archivo CSV y carga sus encabezados
-     *          en los ChoiceBox para selección de columnas.
-     */
-    @FXML
-    private fun cargarArchivoCSVClick() {
-        val fileChooser = FileChooser().apply {
-            title = "Seleccionar Archivo CSV"
-            extensionFilters.add(FileChooser.ExtensionFilter("Archivos CSV", "*.csv"))
-        }
-        selectedCsvFile = fileChooser.showOpenDialog(Stage())
-        cargarCSV.text = selectedCsvFile?.name ?: "No se seleccionó ningún archivo"
-        leerColumnasCSV()
-    }
-
-    /**
-     * @fn leerColumnasCSV
-     * @brief Lee la primera línea del archivo CSV seleccionado para extraer los nombres de columnas.
-     *
-     * @details
-     * - Detecta el separador utilizado (coma, punto y coma o tabulación).
-     * - Llena los ChoiceBox `choiceColumnOldName` y `choiceColumnNewName` con los nombres de las columnas.
-     * - Habilita los ChoiceBox y el botón de renombrado si el archivo es válido.
-     *
-     * @warning Muestra una alerta si el archivo no es válido o tiene menos de dos columnas.
-     */
-
-    private fun leerColumnasCSV() {
-        val (header, _) = leerEncabezadoYSeparador(selectedCsvFile) ?: run {
-            mostrarAlerta("Error", "Error al leer el archivo CSV")
-            return
-        }
-
-        if (header.size < 2) {
-            mostrarAlerta("Error", "El CSV debe tener al menos 2 columnas")
-            return
-        }
-
-        choiceColumnOldName.items.setAll(header)
-        choiceColumnNewName.items.setAll(header)
-        choiceColumnNewName.isDisable = false
-        choiceColumnOldName.isDisable = false
+        // 🔧 NO deshabilitar nunca el botón Ejecutar
         btnRenamer.isDisable = false
     }
 
-    /**
-     * @fn leerEncabezadoYSeparador
-     * @brief Lee la primera línea del archivo CSV para extraer los encabezados y detectar el separador.
-     *
-     * @param archivo Archivo CSV a procesar.
-     * @return Par con una lista de encabezados y el separador detectado, o `null` si falla.
-     *
-     * @details
-     * - Usa UTF-8 para la lectura del archivo.
-     * - Utiliza la función `detectSeparator` para determinar si se usa coma, punto y coma o tabulador.
-     */
+    @FXML
+    private fun buscarCarpetaRaizClick() {
 
+        val stage = btnRenamer.scene.window as Stage
+        val directoryChooser =
+            DirectoryChooser().apply { title = "Seleccionar carpeta raíz" }
 
-    private fun leerEncabezadoYSeparador(archivo: File?): Pair<List<String>, String>? {
+        selectedDirectory = directoryChooser.showDialog(stage)
+        buscarCarpeta.text =
+            selectedDirectory?.absolutePath ?: "No ha seleccionado carpeta"
+
+        updateUIState()
+    }
+
+    @FXML
+    private fun generarCSVConSubcarpetasClick() {
+
+        if (selectedDirectory == null) {
+            mostrarAlerta("Error", "Seleccione una carpeta raíz primero.",
+                Alert.AlertType.ERROR)
+            return
+        }
+
+        val csvFile = File(selectedDirectory, "subcarpetas.csv")
+
+        try {
+            csvFile.bufferedWriter(Charsets.UTF_8).use { writer ->
+                writer.write("nombre_actual\n")
+                selectedDirectory!!
+                    .listFiles { f -> f.isDirectory }
+                    ?.forEach { writer.write("${it.name}\n") }
+            }
+            mostrarAlerta("Éxito",
+                "CSV generado en:\n${csvFile.absolutePath}")
+        } catch (e: Exception) {
+            mostrarAlerta("Error",
+                "No se puede generar el CSV.",
+                Alert.AlertType.ERROR)
+        }
+    }
+
+    @FXML
+    private fun cargarArchivoCSVClick() {
+
+        val stage = btnRenamer.scene.window as Stage
+        val fileChooser = FileChooser().apply {
+            title = "Seleccionar Archivo CSV"
+            extensionFilters.add(
+                FileChooser.ExtensionFilter("Archivos CSV", "*.csv")
+            )
+        }
+
+        selectedCsvFile = fileChooser.showOpenDialog(stage)
+        cargarCSV.text =
+            selectedCsvFile?.name ?: "No se seleccionó ningún archivo"
+
+        leerColumnasCSV()
+        updateUIState()
+    }
+
+    private fun leerColumnasCSV() {
+
+        val (header, _) =
+            leerEncabezadoYSeparador(selectedCsvFile)
+                ?: run {
+                    mostrarAlerta("Error",
+                        "Error al leer el archivo CSV",
+                        Alert.AlertType.ERROR)
+                    return
+                }
+
+        choiceColumnOldName.items.setAll(header)
+        choiceColumnNewName.items.setAll(header)
+        choiceColumnOldName.isDisable = false
+        choiceColumnNewName.isDisable = false
+    }
+
+    private fun leerEncabezadoYSeparador(
+        archivo: File?
+    ): Pair<List<String>, String>? {
+
         if (archivo == null) return null
+
         return try {
-            BufferedReader(InputStreamReader(FileInputStream(archivo), Charsets.UTF_8)).use { reader ->
-                val firstLine = reader.readLine() ?: return null
-                val separator = detectSeparator(firstLine)
-                Pair(firstLine.split(separator), separator)
+            archivo.bufferedReader(Charsets.UTF_8).use {
+                val line = it.readLine() ?: return null
+                val sep = detectSeparator(line)
+                Pair(line.split(sep).map { h -> h.trim() }, sep)
             }
         } catch (e: Exception) {
             null
         }
     }
 
-        /**
-     * @fn detectSeparator
-     * @brief Detecta el separador utilizado en un archivo CSV.
-     *
-     * @param line Primera línea del archivo CSV para analizar.
-     * @return String con el separador detectado (",", ";" o "\t").
-     */
+    private fun detectSeparator(line: String): String {
 
-    private fun detectSeparator(line: String): String{
-        val semicolonCount = line.count { it == ';'}
-        val commaCount = line.count {it == ','}
-        val tabCount = line.count{it == '\t'}
+        val semicolon = line.count { it == ';' }
+        val comma = line.count { it == ',' }
+        val tab = line.count { it == '\t' }
 
         return when {
-            semicolonCount > commaCount && semicolonCount > tabCount -> ";"
-            tabCount > commaCount && tabCount > semicolonCount -> "\t"
-            else -> "," // Por defecto
+            semicolon > comma && semicolon > tab -> ";"
+            tab > comma && tab > semicolon -> "\t"
+            else -> ","
         }
     }
 
-    /**
-     * @fn renombrarClic
-     * @brief Ejecuta el proceso completo de renombrado según las opciones seleccionadas.
-     *
-     * @details Realiza validaciones previas y ejecuta:
-     *          - Renombrado de carpetas (si está habilitado y hay CSV cargado)
-     *          - Renombrado de archivos (si está habilitado)
-     */
     @FXML
-    private  fun renombrarClic(){
-        when {
-            selectedDirectory == null -> {
-                mostrarAlerta("Advertencia", "Seleccione la carpeta primero.")
-                return
-            }
-            !chkRenombrarCarpetas.isSelected && !chkRenombrarArchivos.isSelected -> {
-                mostrarAlerta("Advertencia", "Seleccione al menos una opción de renombrado")
-                return
-            }
-            chkRenombrarCarpetas.isSelected && (selectedCsvFile == null ||
-                    choiceColumnOldName.selectionModel.isEmpty ||
-                    choiceColumnNewName.selectionModel.isEmpty) -> {
-                mostrarAlerta("Advertencia", "Para renombrar carpetas selecciones el CSV y ambas columnas")
-                return
-            }
+    private fun renombrarClic() {
+
+        val dir = selectedDirectory ?: run {
+            mostrarAlerta("Advertencia",
+                "Seleccione la carpeta primero.")
+            return
         }
 
-        if (chkRenombrarCarpetas.isSelected){
-            val oldNameColumn = choiceColumnOldName.selectionModel.selectedItem
-            val newNameColumn = choiceColumnNewName.selectionModel.selectedItem
-            cargarMapeoDeCSV(oldNameColumn, newNameColumn)
-            recorrerYRenombrarCarpetas(selectedDirectory!!)
+        if (!chkRenombrarCarpetas.isSelected &&
+            !chkRenombrarArchivos.isSelected) {
+            mostrarAlerta("Advertencia",
+                "Seleccione al menos una opción de renombrado")
+            return
         }
 
-        if (chkRenombrarArchivos.isSelected){
-            recorrerYRenombrarArchivos(selectedDirectory!!)
+        if (chkRenombrarCarpetas.isSelected) {
+            cargarMapeoDeCSV(
+                choiceColumnOldName.selectionModel.selectedItem,
+                choiceColumnNewName.selectionModel.selectedItem
+            )
+            recorrerYRenombrarCarpetas(dir)
         }
-        mostrarAlerta("Completado", "Proceso de renombrado finalizado")
+
+        if (chkRenombrarArchivos.isSelected) {
+            recorrerYRenombrarArchivos(dir)
+        }
+
+        mostrarAlerta("Completado",
+            "Proceso de renombrado finalizado")
     }
 
-    /**
-     * @fn cargarMapeoDeCSV
-     * @brief Carga el mapeo de nombres antiguos a nuevos desde un archivo CSV.
-     *
-     * @param oldNameColumn Nombre de la columna con nombres actuales.
-     * @param newNameColumn Nombre de la columna con nombres nuevos.
-     *
-     * @throws IOException Si ocurre un error al leer el archivo CSV.
-     */
-    private  fun cargarMapeoDeCSV(oldNameColumn: String, newNameColumn: String) {
-        val (header, separator) = leerEncabezadoYSeparador(selectedCsvFile) ?: return
+    private fun cargarMapeoDeCSV(
+        oldNameColumn: String,
+        newNameColumn: String
+    ) {
+
+        val (header, sep) =
+            leerEncabezadoYSeparador(selectedCsvFile) ?: return
+
         val indexOld = header.indexOf(oldNameColumn)
         val indexNew = header.indexOf(newNameColumn)
-        if (indexOld == -1 || indexNew == -1) return
 
         nameMappings.clear()
-        try {
-            BufferedReader(InputStreamReader(FileInputStream(selectedCsvFile!!), Charsets.UTF_8)).use { reader ->
-                reader.readLine() // Saltar encabezado
-                reader.forEachLine { line ->
-                    val values = line.split(separator)
-                    if (values.size > indexOld && values.size > indexNew) {
-                        nameMappings[values[indexOld]] = values[indexNew]
+
+        selectedCsvFile!!
+            .bufferedReader(Charsets.UTF_8)
+            .useLines { lines ->
+                lines.drop(1).forEach { line ->
+                    if (line.isBlank()) return@forEach
+                    val v = line.split(sep).map { it.trim() }
+                    if (v.size > maxOf(indexOld, indexNew)) {
+                        nameMappings[v[indexOld]] = v[indexNew]
                     }
                 }
             }
-        } catch (e: Exception) {
-            mostrarAlerta("Error", "No se puede procesar el CSV.")
-        }
-
-        val raizNombre = selectedDirectory?.name
-        if (nameMappings.any{it.key == raizNombre || it.value == raizNombre}){
-            mostrarAlerta("Advertencia", "El CSV contiene referencias al nombre de la carpeta raiz '$raizNombre' .\nEvita renombrala pra prevenir errores.")
-        }
     }
 
-    /**
-     * @fn recorrerYRenombrarCarpetas
-     * @brief Renombra carpetas según el mapeo cargado desde CSV.
-     *
-     * @param directory Directorio raíz donde se buscarán las carpetas a renombrar.
-     *
-     * @details Genera un reporte detallado en consola con los resultados.
-     */
     private fun recorrerYRenombrarCarpetas(directory: File) {
-        val resultado = ResultadoRenombrado(
-            exitos = mutableListOf(),
-            errores = mutableListOf(),
-            omitidos = mutableListOf()
-        )
 
-        val raizNombre = directory.name //Nombre actual de la carpeta raiz
+        val resultado = ResultadoRenombrado()
 
-        nameMappings.forEach { (oldName, newName) ->
-            val folder = File(directory, oldName)
-            val target = File(folder.parent, newName)
+        nameMappings.toList()
+            .sortedByDescending { it.first.length }
+            .forEach { (oldName, newName) ->
 
-            if(target.canonicalFile == directory.canonicalFile){
-                resultado.omitidos.add("Omitido por seguridad: intento de sobrescribir la carpeta raíz con '$newName'")
-                return@forEach
-            }
+                val src = File(directory, oldName)
+                val dst = File(directory, newName)
 
-            when {
-                newName.isBlank() -> resultado.omitidos.add("Sin nombre nuevo: '$oldName' (omitido)")
-                !validarNombre(newName) -> resultado.errores.add("Nombre inválido: '$newName'")
-                else -> {
-                    val folder = File(directory, oldName)
-                    when {
-                        !folder.exists() || !folder.isDirectory ->
-                            resultado.errores.add("Carpeta no encontrada: '$oldName'")
-                        File(folder.parent, newName).exists() ->
-                            resultado.errores.add("Ya existe: '$newName'")
-                        folder.renameTo(File(folder.parent, newName)) ->
-                            resultado.exitos.add("${folder.name} -> $newName")
-                        else ->
-                            resultado.errores.add("Error renombrando: '${folder.name}'")
-                    }
+                when {
+                    !src.exists() ->
+                        resultado.errores.add("No existe: $oldName")
+
+                    dst.exists() ->
+                        resultado.archivosExistentes.add(newName)
+
+                    src.renameTo(dst) ->
+                        resultado.exitos.add("$oldName -> $newName")
+
+                    else ->
+                        resultado.errores.add("Error: $oldName")
                 }
             }
-        }
 
-        generarResumenYLog(resultado, "RESUMEN DE RENOMBRADO DE CARPETAS")
+        generarResumenYLog(resultado,
+            "RENOMBRADO DE CARPETAS")
     }
 
-    /**
-     * @fn generarResumenYLog
-     * @brief Genera un resumen del proceso de renombrado y lo muestra en consola y en pantalla.
-     *
-     * @param resultado Objeto ResultadoRenombrado que contiene listas de éxitos, errores, omitidos, etc.
-     * @param titulo Título descriptivo para identificar el tipo de resumen (archivos o carpetas).
-     *
-     * @details
-     * - Imprime el resumen completo en consola.
-     * - Guarda el resumen en un archivo de log en la carpeta seleccionada.
-     * - Muestra un resumen resumido en una alerta gráfica.
-     */
+    private fun recorrerYRenombrarArchivos(raiz: File) {
 
-    private fun generarResumenYLog(resultado: ResultadoRenombrado, titulo: String) {
-        val resumen = buildString {
-            appendLine("\n=== $titulo ===")
-            with(resultado) {
-                listOf(
-                    "✅ Éxitos" to exitos,
-                    "❌ Errores" to errores,
-                    "⚠ Omitidos" to omitidos,
-                    "📏 Archivos largos" to archivosLargos,
-                    "🔄 Archivos existentes" to archivosExistentes
-                ).forEach { (tituloSeccion, lista) ->
-                    if (lista.isNotEmpty()) {
-                        appendLine("\n$tituloSeccion (${lista.size}):")
-                        lista.forEach { appendLine(it) }
+        val resultado = ResultadoRenombrado()
+
+        raiz.walkTopDown()
+            .filter { it.isFile }
+            .forEach { file ->
+
+                val parent = file.parentFile ?: return@forEach
+
+                val suffix = fileSuffixes.firstOrNull {
+                    file.nameWithoutExtension.endsWith(it)
+                } ?: return@forEach
+
+                val ext =
+                    if (file.extension.isNotEmpty())
+                        ".${file.extension}" else ""
+
+                val newName = "${parent.name}$suffix$ext"
+                val newFile = File(parent, newName)
+
+                when {
+                    newFile.exists() ->
+                        resultado.archivosExistentes.add(newName)
+
+                    else -> try {
+                        Files.move(file.toPath(), newFile.toPath())
+                        resultado.exitos.add(
+                            "${file.name} -> $newName"
+                        )
+                    } catch (e: IOException) {
+                        resultado.errores.add(file.name)
                     }
                 }
             }
+
+        generarResumenYLog(resultado,
+            "RENOMBRADO DE ARCHIVOS")
+    }
+
+    private fun generarResumenYLog(
+        resultado: ResultadoRenombrado,
+        titulo: String
+    ) {
+
+        val resumen = buildString {
+            appendLine("=== $titulo ===")
+            appendLine("Éxitos: ${resultado.exitos.size}")
+            appendLine("Errores: ${resultado.errores.size}")
+            appendLine("Omitidos: ${resultado.omitidos.size}")
         }
 
         println(resumen)
         escribeLog(resumen)
-
-        val mensajeAlerta = buildString {
-            with(resultado) {
-                append("RESUMEN ($titulo):\n")
-                if (exitos.isNotEmpty()) append("✅ ${exitos.size} exitos\n")
-                if (errores.isNotEmpty()) append("❌ ${errores.size} errores\n")
-                if (omitidos.isNotEmpty()) append("⚠ ${omitidos.size} omitidos\n")
-                if (archivosLargos.isNotEmpty()) append("📏 ${archivosLargos.size} archivos largos\n")
-                if (archivosExistentes.isNotEmpty()) append("🔄 ${archivosExistentes.size} archivos existentes\n")
-            }
-            append("\nVer consola para detalles completos.")
-        }
-
-        // Mostrar alerta solo si hay contenido
-        if (mensajeAlerta.isNotBlank()) {
-            mostrarAlerta("Resumen del proceso", mensajeAlerta)
-        }
     }
 
-    /**
-     * @fn recorrerYRenombrarArchivos
-     * @brief Renombra archivos según los sufijos predefinidos.
-     *
-     * @param raiz Directorio raíz donde se buscarán los archivos.
-     *
-     * @details Los nuevos nombres siguen el formato:
-     *          "[NombreCarpetaPadre][Sufijo].[extensión]"
-     */
-    private fun recorrerYRenombrarArchivos(raiz: File) {
-        val resultado = ResultadoRenombrado(
-            exitos = mutableListOf(),
-            errores = mutableListOf(),
-            omitidos = mutableListOf(),
-            archivosLargos = mutableListOf(),
-            archivosExistentes = mutableListOf()
-        )
+    private fun mostrarAlerta(
+        titulo: String,
+        mensaje: String,
+        tipo: Alert.AlertType =
+            Alert.AlertType.INFORMATION
+    ) {
 
-        raiz.listFiles()?.filter { it.isDirectory }?.forEach { carpetaProyecto ->
-            carpetaProyecto.walkTopDown()
-                .filter { it.isFile }
-                .forEach { file ->
-                    fileSuffixes.firstOrNull { suffix ->
-                        file.nameWithoutExtension.endsWith(suffix)
-                    }?.let { suffix ->
-                        val extension = if (file.extension.isNotEmpty()) ".${file.extension}" else ""
-                        val newFileName = "${carpetaProyecto.name}$suffix$extension"
-
-                        when {
-                            newFileName.length > 255 ->
-                                resultado.archivosLargos.add("Nombre largo: '${file.name}'")
-                            newFileName.isBlank() ->
-                                resultado.omitidos.add("Sin nombre nuevo: '${file.name}'")
-                            else -> {
-                                val newFile = File(file.parent, newFileName)
-                                when {
-                                    newFile.exists() ->
-                                        resultado.archivosExistentes.add("Ya existe: '$newFileName'")
-                                    else -> try {
-                                        Files.move(file.toPath(), newFile.toPath())
-                                        resultado.exitos.add("${file.name} -> $newFileName")
-                                    } catch (e: IOException) {
-                                        resultado.errores.add("Error: '${file.name}'")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-        }
-
-        generarResumenYLog(resultado, "RESUMEN DE RENOMBRADO DE ARCHIVOS")
-    }
-
-
-    /**
-     * @fn mostrarAlerta
-     * @brief Muestra una alerta en pantalla.
-     * @param titulo Título de la alerta.
-     * @param mensaje Contenido a mostrar.
-     */
-    private fun mostrarAlerta(titulo: String, mensaje: String) {
-        Alert(Alert.AlertType.INFORMATION).apply {
+        Alert(tipo).apply {
             title = titulo
             contentText = mensaje
             showAndWait()
         }
     }
 
-    /**
-     * @fn validarNombre
-     * @brief Valida que un nombre no contenga caracteres prohibidos.
-     *
-     * @param nombre Nombre a validar.
-     * @return Boolean true si el nombre es válido, false si contiene caracteres prohibidos.
-     *
-     * @note Caracteres prohibidos: / \ : * ? " < > |
-     */
-
-    private fun validarNombre(nombre: String): Boolean {
-        val caracteresProhibidos = setOf('/', '\\', ':', '*', '?', '"', '<', '>', '|')
-        return !nombre.any { it in caracteresProhibidos }
-    }
-
-    /**
-     * @fn escribirLog
-     * @brief Escribe un mensaje en el archivo de log en la carpeta raíz seleccionada.
-     *
-     * @param mensaje El mensaje a escribir en el log.
-     */
-
     private fun escribeLog(mensaje: String) {
-        try {
-            selectedDirectory?.let {
-                val logFile = File(it, "Renombrador.log")
-                val timestamp = java.time.LocalDateTime.now()
-                val encabezado = """
-                    |${"=".repeat(80)}
-                    |🕒 EJECUCIÓN DEL RENOMBRADOR: $timestamp
-                    |${"=".repeat(80)}
-                """.trimMargin()
-                logFile.appendText("$encabezado\n$mensaje\n")
-            }
-        } catch (e: Exception) {
-            println("Error escribiendo log: ${e.message}")
+
+        val formatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
+        selectedDirectory?.let { dir ->
+            File(dir, "Renombrador.log").appendText(
+                """
+                
+                ================================================================================
+                EJECUCIÓN: ${LocalDateTime.now().format(formatter)}
+                ================================================================================
+                $mensaje
+                
+                """.trimIndent()
+            )
         }
     }
-
 }
