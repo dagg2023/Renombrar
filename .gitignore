@@ -1,38 +1,27 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
+# Archivos y carpetas de IntelliJ IDEA
+.idea/
 *.iml
-*.ipr
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Carpetas de compilación
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+out/
 
-### VS Code ###
-.vscode/
+# Archivos de logs
+*.log
 
-### Mac OS ###
+# Archivos temporales del sistema
+*.swp
+*.tmp
+*.bak
+
+# Archivos de configuración de inspección/QA
+qodana.yaml
+
+# Archivos de empaquetado
+*.jar
+*.war
+*.ear
+
+# Configuración específica de usuario
 .DS_Store
+Thumbs.db
