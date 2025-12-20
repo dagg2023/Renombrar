@@ -1,0 +1,97 @@
+[
+  {
+    "name": "01_colin"
+  },
+  {
+    "name": "02_doc_sop"
+  },
+  {
+    "name": "03_img"
+  },
+  {
+    "name": "04_lpp",
+    "children": [
+      {
+        "name": "01_report_cal_lpp"
+      },
+      {
+        "name": "02_postproc",
+        "children": [
+          {
+            "name": "base",
+            "children": [
+              {
+                "name": "1. CRUDOS  RED MAGNA ECO"
+              },
+              {
+                "name": "2. CRUDOS BASE"
+              },
+              {
+                "name": "3. COORD BASE"
+              },
+              {
+                "name": "4. EFEMERIDES"
+              },
+              {
+                "name": "5. POST_XX_XX_XXXX"
+              },
+              {
+                "name": "6. REPORTE_POST"
+              },
+              {
+                "name": "7. TABLAS DE COORDENADAS"
+              },
+              {
+                "name": "8. SHAPE"
+              }
+            ]
+          },
+          {
+            "name": "pto_GPS",
+            "children":[
+              {
+                "name": "1. CRUDOS  BASE"
+              },
+              {
+                "name": "2. CRUDOS ROVER"
+              },
+              {
+                "name": "3. COORD BASE"
+              },
+              {
+                "name": "4. EFEMERIDES"
+              },
+              {
+                "name": "5. POST_XX_XX_XXXX"
+              },
+              {
+                "name": "6. REPORTE_POST_XX_XX_XXXX"
+              },
+              {
+                "name": "7. TABLAS DE COORDENADAS"
+              },
+              {
+                "name": "8. SHAPE"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "03_img_vert"
+      },
+      {
+        "name": "04_arch_GNSS",
+        "children":[{
+          "name": "base"
+        },
+          {
+            "name": "pto_gps"
+          }
+
+        ]
+      }
+    ]
+  }
+
+]

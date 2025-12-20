@@ -1,83 +1,285 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--
-/***************************************************************************
-                              Renombrador de Archivos
-
-        Inicio               : 2025-03-02
-        Copyright            : (C) 2025 by David Andres Gonzalez Gutierrez
-        Email                : surveycolombia@gmail.com
-        Licencia             : Este software se distribuye bajo la licencia GNU GPL v3 con restricciones adicionales.
-                               Puedes usarlo, modificarlo y distribuirlo libremente, siempre y cuando se mantenga
-                               este aviso de copyright y la licencia original.
-
-        Derechos de Autor    : El autor mantiene todos los derechos intelectuales sobre el software.
-                               Cualquier modificación o redistribución debe reconocer la autoría original.
-
-        Restricción Comercial: Queda prohibido el uso comercial de este software sin la autorización expresa
-                               y por escrito del autor.
-
-        GNU GPL v3 License   : https://www.gnu.org/licenses/gpl-3.0.html
- ***************************************************************************/
--->
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" spacing="15.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.surveycolombia.renombrar.RenamerController" style="-fx-background-color: #f5f5f5;">
-  <padding>
-    <Insets bottom="20.0" left="25.0" right="25.0" top="25.0"/>
-  </padding>
+<ScrollPane fitToWidth="true" prefWidth="1000" prefHeight="800"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.surveycolombia.renombrar.RenamerController"
+            style="-fx-background: #f8f9fa;">
 
-  <!-- Encabezado -->
-  <Label text="[ D A G G ]" style="-fx-font-family: monospace; -fx-font-size: 12px; -fx-text-fill: #555;"/>
-  <Separator/>
+    <!-- CONTENIDO PRINCIPAL -->
+    <VBox spacing="12" alignment="TOP_CENTER">
 
-  <!-- Opciones de renombrado -->
-  <Label text="Opciones de renombrado:" style="-fx-font-weight: bold;"/>
-  <GridPane hgap="10" vgap="10">
-    <columnConstraints>
-      <ColumnConstraints hgrow="ALWAYS"/>
-      <ColumnConstraints hgrow="ALWAYS"/>
-    </columnConstraints>
-    <children>
-      <CheckBox fx:id="chkRenombrarCarpetas" text="Renombrar carpetas" selected="true" GridPane.columnIndex="0"/>
-      <CheckBox fx:id="chkRenombrarArchivos" text="Renombrar archivos" selected="false" GridPane.columnIndex="1"/>
-    </children>
-  </GridPane>
+        <padding>
+            <Insets top="20" bottom="20" left="40" right="40"/>
+        </padding>
 
-  <!-- Sección Carpeta Raíz -->
-  <Label text="Carpeta raíz:" style="-fx-font-weight: bold;"/>
-  <Label fx:id="buscarCarpeta" text="No se ha seleccionado carpeta"
-         style="-fx-border-color: #ccc; -fx-border-radius: 3; -fx-padding: 5px; -fx-background-color: white; -fx-min-width: 300px;"/>
-  <Button text="Seleccionar carpeta raíz" onAction="#buscarCarpetaRaizClick"
-          style="-fx-min-width: 300px; -fx-background-color: #4a90e2; -fx-text-fill: white;"/>
+        <!-- ================= HEADER ================= -->
+        <VBox spacing="4" alignment="TOP_CENTER">
+            <Label text="RENOMBRADOR DE ARCHIVOS"
+                   style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 
-  <!-- Sección CSV (aparece dinámicamente) -->
-  <VBox fx:id="csvSection" spacing="10" alignment="CENTER">
-    <Label text="Archivo CSV:" style="-fx-font-weight: bold;"/>
-    <Button fx:id="btnGenerarCSV" text="Generar CSV de subcarpetas" onAction="#generarCSVConSubcarpetasClick"
-            style="-fx-min-width: 300px; -fx-pref-width: 300px; -fx-background-color: #50c878; -fx-text-fill: white;" disable="true"/>
+            <Label text="Organizador y renombrador masivo de archivos"
+                   style="-fx-font-size: 13px; -fx-text-fill: #7f8c8d;"/>
 
-    <Label fx:id="cargarCSV" text="No se ha cargado CSV"
-           style="-fx-border-color: #ccc; -fx-border-radius: 3; -fx-padding: 5px; -fx-background-color: white; -fx-min-width: 300px; -fx-pref-width: 300px;"/>
+            <Label text="[ D A G G ]"
+                   style="-fx-font-family: 'Consolas', monospace;
+                          -fx-font-size: 11px;
+                          -fx-text-fill: #95a5a6;
+                          -fx-padding: 3 0 0 0;"/>
+        </VBox>
 
-    <Button fx:id="btnCargarCSV" text="Cargar archivo CSV" onAction="#cargarArchivoCSVClick"
-            style="-fx-min-width: 300px; -fx-pref-width: 300px; -fx-background-color: #4a90e2; -fx-text-fill: white;" disable="true"/>
+        <!-- ================= CARPETA RAÍZ ================= -->
+        <TitledPane text="📁 CARPETA DE TRABAJO" expanded="true" prefWidth="900">
+            <content>
+                <VBox spacing="8" style="-fx-padding: 15;">
+                    <Label text="Selecciona la carpeta donde se encuentran los archivos:"
+                           style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13px;"/>
 
-    <VBox alignment="CENTER" spacing="5">
-      <Label text="Columnas CSV:" style="-fx-font-weight: bold;"/>
-      <Label text="Columna nombre actual:"/>
-      <ChoiceBox fx:id="choiceColumnOldName" style="-fx-min-width: 300px; -fx-pref-width: 300px;" disable="true"/>
-      <Label text="Columna nuevo nombre:"/>
-      <ChoiceBox fx:id="choiceColumnNewName" style="-fx-min-width: 300px; -fx-pref-width: 300px;" disable="true"/>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label fx:id="buscarCarpeta"
+                               text="No se ha seleccionado carpeta"
+                               style="-fx-border-color: #bdc3c7;
+                                      -fx-border-radius: 4;
+                                      -fx-background-color: white;
+                                      -fx-padding: 6 12;
+                                      -fx-background-radius: 4;
+                                      -fx-font-family: 'Segoe UI', sans-serif;
+                                      -fx-font-size: 13px;
+                                      -fx-min-height: 32;
+                                      -fx-pref-width: 600;"/>
+
+                        <Button text="EXAMINAR"
+                                onAction="#buscarCarpetaRaizClick"
+                                style="-fx-font-weight: bold;
+                                       -fx-font-size: 13px;
+                                       -fx-padding: 6 20;
+                                       -fx-min-height: 32;
+                                       -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+                                       -fx-border-color: #ced4da;
+                                       -fx-border-width: 1;
+                                       -fx-border-radius: 4;
+                                       -fx-background-radius: 4;
+                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0.2, 0, 1);"/>
+                    </HBox>
+
+                    <Separator style="-fx-padding: 10 0 8 0;"/>
+
+                    <HBox spacing="20" alignment="CENTER_LEFT">
+                        <CheckBox fx:id="chkRenombrarCarpetas"
+                                  text="Renombrar carpetas"
+                                  selected="true"
+                                  style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+
+                        <CheckBox fx:id="chkRenombrarArchivos"
+                                  text="Renombrar archivos"
+                                  style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                    </HBox>
+                </VBox>
+            </content>
+        </TitledPane>
+
+        <!-- ================= ESTRUCTURA DE CARPETAS ================= -->
+        <TitledPane text="🌳 ESTRUCTURA DE CARPETAS" prefWidth="900">
+            <content>
+                <VBox spacing="12" style="-fx-padding: 15;">
+                    <CheckBox fx:id="chkUsarEstructura"
+                              text="Crear estructura de carpetas"
+                              selected="true"
+                              style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+
+                    <VBox spacing="8" style="-fx-padding: 0 0 0 15;">
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <RadioButton fx:id="rbEstructuraDefault"
+                                         text="Estructura por defecto"
+                                         selected="true"
+                                         style="-fx-font-size: 13px;"/>
+
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <RadioButton fx:id="rbEstructuraCustom"
+                                         text="Estructura personalizada"
+                                         style="-fx-font-size: 13px;"/>
+                        </HBox>
+
+                        <VBox fx:id="jsonSection" spacing="8" visible="false" managed="false">
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <Label fx:id="lblJsonEstructura"
+                                       text="No se ha seleccionado archivo JSON"
+                                       style="-fx-border-color: #bdc3c7;
+                                              -fx-border-radius: 4;
+                                              -fx-background-color: white;
+                                              -fx-padding: 6 12;
+                                              -fx-background-radius: 4;
+                                              -fx-min-height: 32;
+                                              -fx-font-size: 13px;
+                                              -fx-pref-width: 500;"/>
+
+                                <Button fx:id="btnCargarJson"
+                                        text="EXAMINAR"
+                                        onAction="#cargarEstructuraJsonClick"
+                                        disable="true"
+                                        style="-fx-font-weight: bold;
+                                               -fx-font-size: 13px;
+                                               -fx-padding: 6 20;
+                                               -fx-min-height: 32;
+                                               -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+                                               -fx-border-color: #ced4da;
+                                               -fx-border-width: 1;
+                                               -fx-border-radius: 4;
+                                               -fx-background-radius: 4;
+                                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0.2, 0, 1);"/>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <Button fx:id="btnCrearEstructura"
+                            text="CREAR ESTRUCTURA"
+                            onAction="#crearEstructuraClick"
+                            style="-fx-font-weight: bold;
+                                   -fx-font-size: 13px;
+                                   -fx-padding: 8 25;
+                                   -fx-min-height: 36;
+                                   -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+                                   -fx-border-color: #ced4da;
+                                   -fx-border-width: 1;
+                                   -fx-border-radius: 4;
+                                   -fx-background-radius: 4;
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0.3, 0, 2);"/>
+                </VBox>
+            </content>
+        </TitledPane>
+
+        <!-- ================= ARCHIVO CSV ================= -->
+        <TitledPane text="📊 ARCHIVO CSV" prefWidth="900">
+            <content>
+                <!-- ¡ESTE ES EL VBox csvSection QUE EL CONTROLADOR ESPERA! -->
+                <VBox fx:id="csvSection" spacing="12" style="-fx-padding: 15;">
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Button fx:id="btnGenerarCSV"
+                                text="GENERAR CSV"
+                                onAction="#generarCSVConSubcarpetasClick"
+                                disable="true"
+                                style="-fx-font-weight: bold;
+                                       -fx-font-size: 13px;
+                                       -fx-padding: 6 20;
+                                       -fx-min-height: 32;
+                                       -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+                                       -fx-border-color: #ced4da;
+                                       -fx-border-width: 1;
+                                       -fx-border-radius: 4;
+                                       -fx-background-radius: 4;
+                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0.2, 0, 1);"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <Label text="O bien, carga un CSV existente:"
+                               style="-fx-text-fill: #7f8c8d; -fx-font-size: 13px;"/>
+                    </HBox>
+
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label fx:id="cargarCSV"
+                               text="No se ha cargado archivo CSV"
+                               style="-fx-border-color: #bdc3c7;
+                                      -fx-border-radius: 4;
+                                      -fx-background-color: white;
+                                      -fx-padding: 6 12;
+                                      -fx-background-radius: 4;
+                                      -fx-min-height: 32;
+                                      -fx-font-size: 13px;
+                                      -fx-pref-width: 500;"/>
+
+                        <Button fx:id="btnCargarCSV"
+                                text="EXAMINAR"
+                                onAction="#cargarArchivoCSVClick"
+                                disable="true"
+                                style="-fx-font-weight: bold;
+                                       -fx-font-size: 13px;
+                                       -fx-padding: 6 20;
+                                       -fx-min-height: 32;
+                                       -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+                                       -fx-border-color: #ced4da;
+                                       -fx-border-width: 1;
+                                       -fx-border-radius: 4;
+                                       -fx-background-radius: 4;
+                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0.2, 0, 1);"/>
+                    </HBox>
+
+                    <Separator style="-fx-padding: 10 0 8 0;"/>
+
+                    <Label text="Configuración de columnas:"
+                           style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13px;"/>
+
+                    <GridPane hgap="15" vgap="8">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50" halignment="RIGHT"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <rowConstraints>
+                            <RowConstraints prefHeight="30"/>
+                            <RowConstraints prefHeight="35"/>
+                        </rowConstraints>
+
+                        <Label text="Columna nombre actual:"
+                               GridPane.rowIndex="0"
+                               GridPane.columnIndex="0"
+                               style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+
+                        <Label text="Columna nuevo nombre:"
+                               GridPane.rowIndex="0"
+                               GridPane.columnIndex="1"
+                               style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+
+                        <ChoiceBox fx:id="choiceColumnOldName"
+                                   disable="true"
+                                   GridPane.rowIndex="1"
+                                   GridPane.columnIndex="0"
+                                   style="-fx-pref-width: 350;
+                                          -fx-background-color: white;
+                                          -fx-border-color: #bdc3c7;
+                                          -fx-border-radius: 4;
+                                          -fx-font-size: 13px;
+                                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0.2, 0, 1);"/>
+
+                        <ChoiceBox fx:id="choiceColumnNewName"
+                                   disable="true"
+                                   GridPane.rowIndex="1"
+                                   GridPane.columnIndex="1"
+                                   style="-fx-pref-width: 350;
+                                          -fx-background-color: white;
+                                          -fx-border-color: #bdc3c7;
+                                          -fx-border-radius: 4;
+                                          -fx-font-size: 13px;
+                                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0.2, 0, 1);"/>
+                    </GridPane>
+                </VBox>
+            </content>
+        </TitledPane>
+
+        <!-- ================= BOTÓN EJECUTAR ================= -->
+        <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 15 0 0 0;">
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button fx:id="btnRenamer"
+                    text="EJECUTAR RENOMBRADO"
+                    onAction="#renombrarClic"
+                    style="-fx-font-weight: bold;
+                           -fx-font-size: 14px;
+                           -fx-padding: 10 30;
+                           -fx-min-height: 40;
+                           -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+                           -fx-text-fill: white;
+                           -fx-border-color: #2980b9;
+                           -fx-border-width: 1;
+                           -fx-border-radius: 6;
+                           -fx-background-radius: 6;
+                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0.5, 0, 2);
+                           -fx-cursor: hand;
+                           -fx-font-family: 'Segoe UI', sans-serif;"/>
+        </HBox>
+
     </VBox>
-  </VBox>
-
-  <!-- Botón principal -->
-  <Button fx:id="btnRenamer" text="EJECUTAR RENOMBRADO" onAction="#renombrarClic"
-          style="-fx-min-width: 300px; -fx-font-weight: bold; -fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"/>
-</VBox>
+</ScrollPane>
