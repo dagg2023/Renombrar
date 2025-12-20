@@ -34,6 +34,8 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * Clase que almacena el resultado de una operación de renombrado
@@ -66,11 +68,16 @@ class RenamerController {
     @FXML private lateinit var rbEstructuraCustom: RadioButton
     @FXML private lateinit var btnCargarJson: Button
     @FXML private lateinit var lblJsonEstructura: Label
+    @FXML private lateinit var treeViewEstructura: TreeView<String>
+    @FXML private lateinit var jsonSection: VBox
+    @FXML private lateinit var titledPaneEstructura: TitledPane
 
     // === Variables de estado ===
     private var selectedDirectory: File? = null
     private var selectedCsvFile: File? = null
     private var selectedStructureJson: File? = null
+    private var estructuraJsonData: Any? = null // Puede ser JSONObject o JSONArray
+    private var estructuraDefaultJson: Any? = null // JSON por defecto desde resources
     private val nameMappings = mutableMapOf<String, String>()
 
     private val fileSuffixes by lazy {
@@ -96,6 +103,9 @@ class RenamerController {
 
     @FXML
     private fun initialize() {
+        // Cargar JSON por defecto desde resources
+        cargarJsonPorDefectoDesdeResources()
+
         // Configuración inicial
         btnCargarCSV.isDisable = true
         choiceColumnNewName.isDisable = true
@@ -105,16 +115,53 @@ class RenamerController {
         chkRenombrarArchivos.isSelected = false
         chkRenombrarCarpetas.isSelected = true
 
-        // Configurar ToggleGroup para los RadioButtons
+        // Configurar ToggleGroup para los RadioButtons de estructura
         val estructuraToggle = ToggleGroup()
         rbEstructuraDefault.toggleGroup = estructuraToggle
         rbEstructuraCustom.toggleGroup = estructuraToggle
         rbEstructuraDefault.isSelected = true
 
-        // Configurar visibilidad de la sección JSON
-        estructuraToggle.selectedToggleProperty().addListener { _, _, newToggle ->
-            btnCargarJson.isDisable = newToggle != rbEstructuraCustom
+        // Configurar TreeView inicial
+        treeViewEstructura.root = TreeItem("Estructura de Carpetas")
+        treeViewEstructura.isShowRoot = true
+
+        // Configurar listener para el CheckBox principal de estructura
+        chkUsarEstructura.selectedProperty().addListener { _, _, isSelected ->
+            // Expandir o colapsar el TitledPane según el estado del checkbox
+            titledPaneEstructura.isExpanded = isSelected
+
+            if (isSelected) {
+                actualizarControlesEstructura(true)
+                if (rbEstructuraDefault.isSelected) {
+                    cargarEstructuraPorDefecto()
+                }
+            } else {
+                treeViewEstructura.root.children.clear()
+                actualizarControlesEstructura(false)
+            }
         }
+
+        // Configurar listeners para RadioButtons
+        estructuraToggle.selectedToggleProperty().addListener { _, _, newToggle ->
+            if (!chkUsarEstructura.isSelected) return@addListener
+
+            when (newToggle) {
+                rbEstructuraDefault -> {
+                    jsonSection.isVisible = false
+                    jsonSection.isManaged = false
+                    btnCargarJson.isDisable = true
+                    cargarEstructuraPorDefecto()
+                }
+                rbEstructuraCustom -> {
+                    jsonSection.isVisible = true
+                    jsonSection.isManaged = true
+                    btnCargarJson.isDisable = false
+                }
+            }
+        }
+
+        // Actualizar controles iniciales
+        actualizarControlesEstructura(chkUsarEstructura.isSelected)
 
         // Listeners para actualizar estado de UI
         val checkListener = { _: ObservableValue<out Boolean>, _: Boolean, _: Boolean ->
@@ -122,6 +169,172 @@ class RenamerController {
         }
         chkRenombrarCarpetas.selectedProperty().addListener(checkListener)
         chkRenombrarArchivos.selectedProperty().addListener(checkListener)
+    }
+
+    private fun cargarJsonPorDefectoDesdeResources() {
+        try {
+            // Intentar cargar el JSON por defecto desde resources
+            val inputStream = javaClass.getResourceAsStream("estructura_por_defecto.json")
+            if (inputStream != null) {
+                val jsonContent = inputStream.bufferedReader().use { it.readText().trim() }
+                // Intentar cargar como JSONArray (formato con corchetes [])
+                try {
+                    estructuraDefaultJson = JSONArray(jsonContent)
+                    escribeLog("JSON por defecto cargado desde resources (Array)")
+                } catch (eArray: Exception) {
+                    // Si falla, intentar como JSONObject
+                    try {
+                        estructuraDefaultJson = JSONObject(jsonContent)
+                        escribeLog("JSON por defecto cargado desde resources (Object)")
+                    } catch (eObject: Exception) {
+                        escribeLog("ERROR: No se pudo cargar JSON por defecto desde resources")
+                    }
+                }
+            } else {
+                // Si no existe el archivo en resources, crear uno por defecto
+                crearJsonPorDefecto()
+            }
+        } catch (e: Exception) {
+            escribeLog("ERROR cargando JSON por defecto: ${e.message}")
+            crearJsonPorDefecto()
+        }
+    }
+
+    private fun crearJsonPorDefecto() {
+        // Crear JSON por defecto básico si no existe el archivo
+        val jsonPorDefecto = JSONArray()
+        val proyecto1 = JSONObject().apply {
+            put("name", "01_colin")
+        }
+        val proyecto2 = JSONObject().apply {
+            put("name", "02_doc_sop")
+        }
+        val proyecto3 = JSONObject().apply {
+            put("name", "03_img")
+        }
+
+        val proyecto4 = JSONObject().apply {
+            put("name", "04_lpp")
+            val children = JSONArray()
+            val child1 = JSONObject().apply { put("name", "01_report_cal_lpp") }
+            val child2 = JSONObject().apply {
+                put("name", "02_postproc")
+                val subChildren = JSONArray()
+                val subChild1 = JSONObject().apply {
+                    put("name", "base")
+                    val baseChildren = JSONArray()
+                    (1..8).forEach { i ->
+                        val baseChild = JSONObject().apply {
+                            put("name", "$i. ${when(i) {
+                                1 -> "CRUDOS RED MAGNA ECO"
+                                2 -> "CRUDOS BASE"
+                                3 -> "COORD BASE"
+                                4 -> "EFEMERIDES"
+                                5 -> "POST_XX_XX_XXXX"
+                                6 -> "REPORTE_POST"
+                                7 -> "TABLAS DE COORDENADAS"
+                                8 -> "SHAPE"
+                                else -> ""
+                            }}")
+                        }
+                        baseChildren.put(baseChild)
+                    }
+                    put("children", baseChildren)
+                }
+                val subChild2 = JSONObject().apply {
+                    put("name", "pto_GPS")
+                    val ptoChildren = JSONArray()
+                    (1..8).forEach { i ->
+                        val ptoChild = JSONObject().apply {
+                            put("name", "$i. ${when(i) {
+                                1 -> "CRUDOS BASE"
+                                2 -> "CRUDOS ROVER"
+                                3 -> "COORD BASE"
+                                4 -> "EFEMERIDES"
+                                5 -> "POST_XX_XX_XXXX"
+                                6 -> "REPORTE_POST_XX_XX_XXXX"
+                                7 -> "TABLAS DE COORDENADAS"
+                                8 -> "SHAPE"
+                                else -> ""
+                            }}")
+                        }
+                        ptoChildren.put(ptoChild)
+                    }
+                    put("children", ptoChildren)
+                }
+                subChildren.put(subChild1)
+                subChildren.put(subChild2)
+                put("children", subChildren)
+            }
+            val child3 = JSONObject().apply { put("name", "03_img_vert") }
+            val child4 = JSONObject().apply {
+                put("name", "04_arch_GNSS")
+                val gnssChildren = JSONArray()
+                val gnssChild1 = JSONObject().apply { put("name", "base") }
+                val gnssChild2 = JSONObject().apply { put("name", "pto_gps") }
+                gnssChildren.put(gnssChild1)
+                gnssChildren.put(gnssChild2)
+                put("children", gnssChildren)
+            }
+            children.put(child1)
+            children.put(child2)
+            children.put(child3)
+            children.put(child4)
+            put("children", children)
+        }
+
+        jsonPorDefecto.put(proyecto1)
+        jsonPorDefecto.put(proyecto2)
+        jsonPorDefecto.put(proyecto3)
+        jsonPorDefecto.put(proyecto4)
+
+        estructuraDefaultJson = jsonPorDefecto
+        escribeLog("JSON por defecto creado en memoria")
+    }
+
+    private fun actualizarControlesEstructura(habilitado: Boolean) {
+        // Habilitar/deshabilitar controles relacionados con estructura
+        rbEstructuraDefault.isDisable = !habilitado
+        rbEstructuraCustom.isDisable = !habilitado
+        btnCrearEstructura.isDisable = !habilitado || selectedDirectory == null
+        treeViewEstructura.isDisable = !habilitado
+        btnCargarJson.isDisable = !habilitado || !rbEstructuraCustom.isSelected
+        jsonSection.isVisible = habilitado && rbEstructuraCustom.isSelected
+        jsonSection.isManaged = habilitado && rbEstructuraCustom.isSelected
+
+        // Si no está habilitado, limpiar el treeview
+        if (!habilitado) {
+            treeViewEstructura.root.children.clear()
+        }
+    }
+
+    private fun cargarEstructuraPorDefecto() {
+        if (estructuraDefaultJson != null) {
+            cargarEstructuraDesdeJson(estructuraDefaultJson!!)
+        } else {
+            // Estructura de respaldo si no hay JSON
+            val estructuraPorDefecto = mapOf(
+                "Proyectos" to listOf("Documentos", "Imágenes", "Planos"),
+                "Administrativo" to listOf("Contratos", "Facturas", "Presupuestos"),
+                "Técnico" to listOf("Estudios", "Informes", "Memorias")
+            )
+            actualizarTreeView(estructuraPorDefecto)
+        }
+    }
+
+    private fun actualizarTreeView(estructura: Map<String, List<String>>) {
+        val root = TreeItem<String>("Estructura de Carpetas")
+
+        estructura.forEach { (carpetaPrincipal, subcarpetas) ->
+            val itemPrincipal = TreeItem<String>("📁 $carpetaPrincipal")
+            subcarpetas.forEach { subcarpeta ->
+                itemPrincipal.children.add(TreeItem<String>("   └─ $subcarpeta"))
+            }
+            root.children.add(itemPrincipal)
+        }
+
+        treeViewEstructura.root = root
+        treeViewEstructura.isShowRoot = true
     }
 
     private fun updateUIState() {
@@ -134,6 +347,11 @@ class RenamerController {
         // Habilitar/deshabilitar botones según estado
         btnGenerarCSV.isDisable = selectedDirectory == null
         btnCargarCSV.isDisable = selectedDirectory == null || soloArchivos
+
+        // Actualizar botón crear estructura (depende de si hay carpeta seleccionada)
+        if (chkUsarEstructura.isSelected) {
+            btnCrearEstructura.isDisable = selectedDirectory == null
+        }
 
         // Botón ejecutar siempre activo
         btnRenamer.isDisable = false
@@ -150,6 +368,7 @@ class RenamerController {
         buscarCarpeta.text = selectedDirectory?.absolutePath ?: "No se ha seleccionado carpeta"
 
         updateUIState()
+        actualizarControlesEstructura(chkUsarEstructura.isSelected)
         escribeLog("Carpeta seleccionada: ${selectedDirectory?.absolutePath ?: "ninguna"}")
     }
 
@@ -165,7 +384,105 @@ class RenamerController {
         lblJsonEstructura.text = selectedStructureJson?.name ?: "No se ha seleccionado archivo"
 
         if (selectedStructureJson != null) {
-            escribeLog("JSON de estructura cargado: ${selectedStructureJson!!.name}")
+            try {
+                val jsonContent = selectedStructureJson!!.readText().trim()
+
+                // Intentar cargar como JSONArray (formato con corchetes [])
+                try {
+                    estructuraJsonData = JSONArray(jsonContent)
+                    cargarEstructuraDesdeJson(estructuraJsonData!!)
+                    escribeLog("JSON Array cargado: ${selectedStructureJson!!.name}")
+                    mostrarAlerta("Éxito", "Estructura JSON cargada correctamente.")
+                } catch (eArray: Exception) {
+                    // Si falla, intentar como JSONObject (formato con llaves {})
+                    try {
+                        estructuraJsonData = JSONObject(jsonContent)
+                        cargarEstructuraDesdeJson(estructuraJsonData!!)
+                        escribeLog("JSON Object cargado: ${selectedStructureJson!!.name}")
+                        mostrarAlerta("Éxito", "Estructura JSON cargada correctamente.")
+                    } catch (eObject: Exception) {
+                        throw IllegalArgumentException("No es un JSON válido (ni array ni objeto)")
+                    }
+                }
+            } catch (e: Exception) {
+                mostrarAlerta("Error", "No se pudo cargar el archivo JSON: ${e.message}", Alert.AlertType.ERROR)
+                escribeLog("ERROR cargando JSON: ${e.message}")
+            }
+        }
+    }
+
+    private fun cargarEstructuraDesdeJson(jsonData: Any) {
+        val root = TreeItem<String>("Estructura")
+
+        try {
+            when (jsonData) {
+                is JSONArray -> {
+                    // Formato de array JSON: [{...}, {...}]
+                    procesarArrayJSON(jsonData, root)
+                }
+                is JSONObject -> {
+                    // Formato de objeto JSON: {"estructura": [...]} o {"carpetas": [...]}
+                    if (jsonData.has("estructura")) {
+                        val estructura = jsonData.getJSONArray("estructura")
+                        procesarArrayJSON(estructura, root)
+                    } else if (jsonData.has("carpetas")) {
+                        val carpetas = jsonData.getJSONArray("carpetas")
+                        procesarArrayJSON(carpetas, root)
+                    } else {
+                        // Formato alternativo: objeto con propiedades directas
+                        val itemTree = TreeItem<String>("📁 Estructura JSON")
+                        procesarNodoJSON(jsonData, itemTree)
+                        root.children.add(itemTree)
+                    }
+                }
+            }
+
+            treeViewEstructura.root = root
+            treeViewEstructura.isShowRoot = true
+        } catch (e: Exception) {
+            throw IOException("Error al parsear JSON: ${e.message}")
+        }
+    }
+
+    private fun procesarArrayJSON(jsonArray: JSONArray, parentTreeItem: TreeItem<String>) {
+        for (i in 0 until jsonArray.length()) {
+            val item = jsonArray.get(i)
+            if (item is JSONObject) {
+                procesarNodoJSON(item, parentTreeItem)
+            } else if (item is String) {
+                parentTreeItem.children.add(TreeItem<String>("📁 $item"))
+            }
+        }
+    }
+
+    private fun procesarNodoJSON(jsonObject: JSONObject, parentTreeItem: TreeItem<String>) {
+        try {
+            // Intenta obtener el nombre de diferentes formas posibles
+            val nombre = when {
+                jsonObject.has("name") -> jsonObject.getString("name")
+                jsonObject.has("nombre") -> jsonObject.getString("nombre")
+                jsonObject.has("folder") -> jsonObject.getString("folder")
+                jsonObject.has("carpeta") -> jsonObject.getString("carpeta")
+                else -> "Sin nombre"
+            }
+
+            val itemTree = TreeItem<String>("📁 $nombre")
+
+            // Procesar hijos recursivamente
+            if (jsonObject.has("children") && jsonObject.get("children") is JSONArray) {
+                val children = jsonObject.getJSONArray("children")
+                procesarArrayJSON(children, itemTree)
+            } else if (jsonObject.has("subcarpetas") && jsonObject.get("subcarpetas") is JSONArray) {
+                val subcarpetas = jsonObject.getJSONArray("subcarpetas")
+                procesarArrayJSON(subcarpetas, itemTree)
+            } else if (jsonObject.has("hijos") && jsonObject.get("hijos") is JSONArray) {
+                val hijos = jsonObject.getJSONArray("hijos")
+                procesarArrayJSON(hijos, itemTree)
+            }
+
+            parentTreeItem.children.add(itemTree)
+        } catch (e: Exception) {
+            println("Error procesando nodo JSON: ${e.message}")
         }
     }
 
@@ -176,8 +493,134 @@ class RenamerController {
             return
         }
 
-        crearEstructura(dir)
-        mostrarAlerta("Éxito", "Proceso de creación de estructura finalizado.")
+        if (!chkUsarEstructura.isSelected) {
+            mostrarAlerta("Advertencia", "Active la opción 'Crear estructura de carpetas'.")
+            return
+        }
+
+        val exito = if (rbEstructuraDefault.isSelected) {
+            crearEstructuraPorDefecto(dir)
+        } else {
+            if (estructuraJsonData != null) {
+                crearEstructuraDesdeJson(dir, estructuraJsonData!!)
+            } else {
+                mostrarAlerta("Error", "No hay estructura JSON cargada.", Alert.AlertType.ERROR)
+                return
+            }
+        }
+
+        if (exito) {
+            mostrarAlerta("Éxito", "Estructura de carpetas creada correctamente.")
+        }
+    }
+
+    private fun crearEstructuraPorDefecto(directorio: File): Boolean {
+        return try {
+            if (estructuraDefaultJson != null) {
+                crearEstructuraDesdeJson(directorio, estructuraDefaultJson!!)
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            mostrarAlerta("Error", "Error al crear estructura: ${e.message}", Alert.AlertType.ERROR)
+            false
+        }
+    }
+
+    private fun crearEstructuraDesdeJson(directorio: File, jsonData: Any): Boolean {
+        return try {
+            when (jsonData) {
+                is JSONArray -> {
+                    crearEstructuraDesdeArray(directorio, jsonData)
+                }
+
+                is JSONObject -> {
+                    // Lógica existente para JSONObject
+                    if (jsonData.has("estructura")) {
+                        val estructura = jsonData.getJSONArray("estructura")
+                        crearEstructuraDesdeArray(directorio, estructura)
+                    } else if (jsonData.has("carpetas")) {
+                        val carpetas = jsonData.getJSONArray("carpetas")
+                        crearEstructuraDesdeArray(directorio, carpetas)
+                    } else {
+                        // Asumimos que es un nodo con "name" y "children"
+                        crearNodoDesdeJSON(directorio, jsonData)
+                    }
+                }
+
+                else -> {
+                    escribeLog("ERROR: Tipo de JSON no soportado")
+                    false
+                }
+            }
+        } catch (e: Exception) {
+            mostrarAlerta("Error", "Error al crear estructura desde JSON: ${e.message}", Alert.AlertType.ERROR)
+            false
+        } as Boolean
+    }
+
+    private fun crearEstructuraDesdeArray(directorio: File, jsonArray: JSONArray): Boolean {
+        try {
+            for (i in 0 until jsonArray.length()) {
+                val item = jsonArray.get(i)
+                when (item) {
+                    is JSONObject -> {
+                        crearNodoDesdeJSON(directorio, item)
+                    }
+                    is String -> {
+                        val dirCarpeta = File(directorio, item)
+                        if (dirCarpeta.mkdir()) {
+                            escribeLog("✓ Carpeta creada: $item")
+                        } else {
+                            escribeLog("ℹ Carpeta ya existe: $item")
+                        }
+                    }
+                }
+            }
+            return true
+        } catch (e: Exception) {
+            throw IOException("Error al crear estructura desde array: ${e.message}")
+        }
+    }
+
+    private fun crearNodoDesdeJSON(directorio: File, jsonObject: JSONObject) {
+        try {
+            // Intenta obtener el nombre de diferentes formas posibles
+            val nombreCarpeta = when {
+                jsonObject.has("name") -> jsonObject.getString("name")
+                jsonObject.has("nombre") -> jsonObject.getString("nombre")
+                jsonObject.has("folder") -> jsonObject.getString("folder")
+                jsonObject.has("carpeta") -> jsonObject.getString("carpeta")
+                else -> "carpeta_${System.currentTimeMillis()}"
+            }
+
+            val dirCarpeta = File(directorio, nombreCarpeta)
+
+            if (dirCarpeta.mkdir()) {
+                escribeLog("✓ Carpeta creada: $nombreCarpeta")
+
+                // Crear hijos recursivamente
+                if (jsonObject.has("children") && jsonObject.get("children") is JSONArray) {
+                    val children = jsonObject.getJSONArray("children")
+                    crearEstructuraDesdeArray(dirCarpeta, children)
+                } else if (jsonObject.has("subcarpetas") && jsonObject.get("subcarpetas") is JSONArray) {
+                    val subcarpetas = jsonObject.getJSONArray("subcarpetas")
+                    crearEstructuraDesdeArray(dirCarpeta, subcarpetas)
+                } else if (jsonObject.has("hijos") && jsonObject.get("hijos") is JSONArray) {
+                    val hijos = jsonObject.getJSONArray("hijos")
+                    crearEstructuraDesdeArray(dirCarpeta, hijos)
+                }
+            } else {
+                escribeLog("ℹ Carpeta ya existe: $nombreCarpeta")
+                // Si la carpeta ya existe, aún así procesar los hijos si los tiene
+                if (jsonObject.has("children") && jsonObject.get("children") is JSONArray) {
+                    val children = jsonObject.getJSONArray("children")
+                    crearEstructuraDesdeArray(dirCarpeta, children)
+                }
+            }
+        } catch (e: Exception) {
+            println("Error creando nodo desde JSON: ${e.message}")
+        }
     }
 
     @FXML
@@ -396,7 +839,7 @@ class RenamerController {
 
                 else -> {
                     resultado.errores.add("Error al renombrar: $oldName")
-                    escribeLog("ERROR [${index + 1}]: Error al renombrar - $oldName")
+                    escribeLog("ERROR [${index + 1}]: Error al renombrado - $oldName")
                 }
             }
         }
@@ -563,21 +1006,6 @@ class RenamerController {
         }
 
         mostrarAlerta("Proceso Completado", mensaje, Alert.AlertType.INFORMATION)
-    }
-
-    private fun crearEstructura(dir: File) {
-        // Implementación básica - puedes expandir esto según tus necesidades
-        escribeLog("Creando estructura de carpetas en: ${dir.absolutePath}")
-
-        val estructura = listOf("documentos", "imagenes", "archivos", "backup")
-        estructura.forEach { carpeta ->
-            val nuevaCarpeta = File(dir, carpeta)
-            if (nuevaCarpeta.mkdir()) {
-                escribeLog("  ✓ Carpeta creada: $carpeta")
-            } else {
-                escribeLog("  ℹ Carpeta ya existe: $carpeta")
-            }
-        }
     }
 
     private fun mostrarAlerta(titulo: String, mensaje: String, tipo: Alert.AlertType = Alert.AlertType.INFORMATION) {

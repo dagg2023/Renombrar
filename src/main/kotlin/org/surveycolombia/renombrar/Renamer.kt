@@ -51,7 +51,7 @@ class Rename : Application() {
 
     override fun start(stage: Stage) {
         val fxmlLoader = FXMLLoader(Rename::class.java.getResource("renamer_view.fxml"))
-        val scene = Scene(fxmlLoader.load(), 600.0, 750.0)
+        val scene = Scene(fxmlLoader.load(), 700.0, 750.0)
 
         stage.title = "[ R E N O M B R A R ]"
         val icon = Image(javaClass.getResourceAsStream("/app_icon.png"))

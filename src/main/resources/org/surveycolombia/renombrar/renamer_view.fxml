@@ -76,20 +76,22 @@
                         <CheckBox fx:id="chkRenombrarArchivos"
                                   text="Renombrar archivos"
                                   style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <CheckBox fx:id="chkUsarEstructura"
+                                  text="Crear estructura de carpetas"
+                                  selected="true"
+                                  style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
                     </HBox>
                 </VBox>
             </content>
         </TitledPane>
 
         <!-- ================= ESTRUCTURA DE CARPETAS ================= -->
-        <TitledPane text="🌳 ESTRUCTURA DE CARPETAS" prefWidth="900">
+        <TitledPane fx:id="titledPaneEstructura" text="🌳 ESTRUCTURA DE CARPETAS" prefWidth="900" expanded="true">
             <content>
                 <VBox spacing="12" style="-fx-padding: 15;">
-                    <CheckBox fx:id="chkUsarEstructura"
-                              text="Crear estructura de carpetas"
-                              selected="true"
-                              style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
-
                     <VBox spacing="8" style="-fx-padding: 0 0 0 15;">
                         <HBox spacing="12" alignment="CENTER_LEFT">
                             <RadioButton fx:id="rbEstructuraDefault"
@@ -104,6 +106,7 @@
                                          style="-fx-font-size: 13px;"/>
                         </HBox>
 
+                        <!-- Sección para cargar JSON -->
                         <VBox fx:id="jsonSection" spacing="8" visible="false" managed="false">
                             <HBox spacing="12" alignment="CENTER_LEFT">
                                 <Label fx:id="lblJsonEstructura"
@@ -118,7 +121,7 @@
                                               -fx-pref-width: 500;"/>
 
                                 <Button fx:id="btnCargarJson"
-                                        text="EXAMINAR"
+                                        text="CARGAR JSON"
                                         onAction="#cargarEstructuraJsonClick"
                                         disable="true"
                                         style="-fx-font-weight: bold;
@@ -133,6 +136,23 @@
                                                -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0.2, 0, 1);"/>
                             </HBox>
                         </VBox>
+                    </VBox>
+
+                    <!-- TreeView para visualizar la estructura -->
+                    <VBox spacing="8" style="-fx-padding: 10 0 0 0;">
+                        <Label text="Vista previa de la estructura:"
+                               style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13px;"/>
+
+                        <TreeView fx:id="treeViewEstructura"
+                                  prefHeight="200"
+                                  style="-fx-border-color: #bdc3c7;
+                                         -fx-border-radius: 4;
+                                         -fx-background-color: white;
+                                         -fx-background-radius: 4;">
+                        </TreeView>
+
+                        <Label text="No hay estructura cargada. Use 'Estructura por defecto' o cargue un JSON personalizado."
+                               style="-fx-text-fill: #7f8c8d; -fx-font-size: 12px; -fx-padding: 5 0 0 0;"/>
                     </VBox>
 
                     <Button fx:id="btnCrearEstructura"
@@ -155,7 +175,6 @@
         <!-- ================= ARCHIVO CSV ================= -->
         <TitledPane text="📊 ARCHIVO CSV" prefWidth="900">
             <content>
-                <!-- ¡ESTE ES EL VBox csvSection QUE EL CONTROLADOR ESPERA! -->
                 <VBox fx:id="csvSection" spacing="12" style="-fx-padding: 15;">
                     <HBox spacing="12" alignment="CENTER_LEFT">
                         <Button fx:id="btnGenerarCSV"
