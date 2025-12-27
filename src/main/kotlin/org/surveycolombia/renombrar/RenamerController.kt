@@ -25,6 +25,7 @@ package org.surveycolombia.renombrar
 import javafx.beans.value.ObservableValue
 import javafx.fxml.FXML
 import javafx.scene.control.*
+import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
@@ -71,6 +72,18 @@ class RenamerController {
     @FXML private lateinit var treeViewEstructura: TreeView<String>
     @FXML private lateinit var jsonSection: VBox
     @FXML private lateinit var titledPaneEstructura: TitledPane
+
+    @FXML lateinit var rbRootSingle: RadioButton
+    @FXML lateinit var rbRootMultiple: RadioButton
+    @FXML lateinit var rbRootByNumber: RadioButton
+    @FXML lateinit var rbRootByCsv: RadioButton
+    @FXML lateinit var folderNumberSection: HBox
+    @FXML lateinit var folderNameSection: HBox
+    @FXML lateinit var txtRootBaseName: TextField
+    @FXML lateinit var spRootCount: Spinner<Int>
+    @FXML lateinit var rootSourceSection: HBox
+
+
 
     // === Variables de estado ===
     private var selectedDirectory: File? = null
@@ -169,6 +182,19 @@ class RenamerController {
         }
         chkRenombrarCarpetas.selectedProperty().addListener(checkListener)
         chkRenombrarArchivos.selectedProperty().addListener(checkListener)
+
+        // 🔹 Estado inicial: una sola carpeta
+        activarModoUnaCarpeta()
+
+        // 🔹 Spinner 1..100 por defecto
+        spRootCount.valueFactory =
+            SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1)
+
+        // 🔹 Valor por defecto del nombre base
+        txtRootBaseName.text = "carpeta"
+
+        // 🔹 Listeners
+        configurarListeners()
     }
 
     private fun cargarJsonPorDefectoDesdeResources() {
@@ -1021,6 +1047,83 @@ class RenamerController {
         val caracteresProhibidos = setOf('/', '\\', ':', '*', '?', '"', '<', '>', '|')
         return !nombre.any { it in caracteresProhibidos }
     }
+
+    private fun configurarListeners() {
+
+        // Modo UNA vs VARIAS carpetas
+        rbRootSingle.selectedProperty().addListener { _, _, selected ->
+            if (selected) {
+                activarModoUnaCarpeta()
+            }
+        }
+
+        rbRootMultiple.selectedProperty().addListener { _, _, selected ->
+            if (selected) {
+                activarModoVariasCarpetas()
+            }
+        }
+
+        // Origen por NÚMERO
+        rbRootByNumber.selectedProperty().addListener { _, _, selected ->
+            if (selected) {
+                mostrarSeccionNumero()
+            }
+        }
+
+        // Origen por CSV
+        rbRootByCsv.selectedProperty().addListener { _, _, selected ->
+            if (selected) {
+                mostrarSeccionCsv()
+            }
+        }
+    }
+
+
+    private fun activarModoUnaCarpeta() {
+
+        // 🔹 Ocultar origen (Número / CSV)
+        rootSourceSection.isVisible = false
+        rootSourceSection.isManaged = false
+
+        // 🔹 Ocultar secciones dependientes
+        folderNumberSection.isVisible = false
+        folderNumberSection.isManaged = false
+
+        folderNameSection.isVisible = false
+        folderNameSection.isManaged = false
+    }
+
+
+    private fun activarModoVariasCarpetas(){
+
+        // 🔹 Mostrar selector de origen (Número / CSV)
+        rootSourceSection.isVisible = true
+        rootSourceSection.isManaged = true
+
+        // 🔹 Estado por defecto
+        rbRootByNumber.isSelected = true
+        txtRootBaseName.text = "Carpeta"
+
+        mostrarSeccionNumero()
+    }
+
+
+    private fun mostrarSeccionNumero(){
+        folderNumberSection.isVisible = true
+        folderNumberSection.isManaged = true
+
+        folderNameSection.isVisible = false
+        folderNameSection.isManaged = false
+    }
+
+    private fun mostrarSeccionCsv() {
+        folderNumberSection.isVisible = false
+        folderNumberSection.isManaged = false
+
+        folderNameSection.isVisible = true
+        folderNameSection.isManaged = true
+    }
+
 
     private fun escribeLog(mensaje: String) {
         selectedDirectory?.let { dir ->
