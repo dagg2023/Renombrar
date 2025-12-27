@@ -37,6 +37,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import org.json.JSONArray
 import org.json.JSONObject
+import org.surveycolombia.renombrar.services.CreateStructureService
 
 /**
  * Clase que almacena el resultado de una operación de renombrado
@@ -82,6 +83,8 @@ class RenamerController {
     @FXML lateinit var txtRootBaseName: TextField
     @FXML lateinit var spRootCount: Spinner<Int>
     @FXML lateinit var rootSourceSection: HBox
+    @FXML lateinit var btnLoadRootCsv: Button
+    @FXML lateinit var lblRootCsv: Label
 
 
 
@@ -92,6 +95,8 @@ class RenamerController {
     private var estructuraJsonData: Any? = null // Puede ser JSONObject o JSONArray
     private var estructuraDefaultJson: Any? = null // JSON por defecto desde resources
     private val nameMappings = mutableMapOf<String, String>()
+
+    private var selectedRootCsvFile: File? = null
 
     private val fileSuffixes by lazy {
         val baseSuffixes = listOf(
@@ -121,6 +126,7 @@ class RenamerController {
 
         // Configuración inicial
         btnCargarCSV.isDisable = true
+        btnLoadRootCsv.isDisable = true
         choiceColumnNewName.isDisable = true
         choiceColumnOldName.isDisable = true
         btnGenerarCSV.isDisable = true
@@ -152,6 +158,7 @@ class RenamerController {
                 treeViewEstructura.root.children.clear()
                 actualizarControlesEstructura(false)
             }
+            updateUIState()  // 🔹 ACTUALIZAR UI CUANDO CAMBIA EL CHECKBOX
         }
 
         // Configurar listeners para RadioButtons
@@ -169,8 +176,12 @@ class RenamerController {
                     jsonSection.isVisible = true
                     jsonSection.isManaged = true
                     btnCargarJson.isDisable = false
+
+                    // 🔹 LIMPIAR árbol al cambiar a estructura personalizada
+                    treeViewEstructura.root.children.clear()
                 }
             }
+            updateUIState()  // 🔹 ACTUALIZAR UI CUANDO CAMBIAN LOS RADIOBUTTONS
         }
 
         // Actualizar controles iniciales
@@ -195,6 +206,14 @@ class RenamerController {
 
         // 🔹 Listeners
         configurarListeners()
+
+        // 🔹 Cargar estructura por defecto al iniciar la app
+        if (chkUsarEstructura.isSelected && rbEstructuraDefault.isSelected) {
+            cargarEstructuraPorDefecto()
+        }
+
+        // 🔹 Actualizar UI después de inicializar todo
+        updateUIState()
     }
 
     private fun cargarJsonPorDefectoDesdeResources() {
@@ -332,6 +351,9 @@ class RenamerController {
         if (!habilitado) {
             treeViewEstructura.root.children.clear()
         }
+
+        // 🔹 ACTUALIZAR UI CUANDO CAMBIAN LOS CONTROLES DE ESTRUCTURA
+        updateUIState()
     }
 
     private fun cargarEstructuraPorDefecto() {
@@ -375,12 +397,23 @@ class RenamerController {
         btnCargarCSV.isDisable = selectedDirectory == null || soloArchivos
 
         // Actualizar botón crear estructura (depende de si hay carpeta seleccionada)
-        if (chkUsarEstructura.isSelected) {
-            btnCrearEstructura.isDisable = selectedDirectory == null
-        }
+        btnCrearEstructura.isDisable =
+            !chkUsarEstructura.isSelected || selectedDirectory == null
 
         // Botón ejecutar siempre activo
         btnRenamer.isDisable = false
+
+        // 🔹 CONDICIÓN CORREGIDA PARA EL BOTÓN DE CARGAR CSV DE ESTRUCTURA
+        val usandoCsvParaEstructura =
+            chkUsarEstructura.isSelected &&
+                    rbRootMultiple.isSelected &&
+                    rbRootByCsv.isSelected
+
+        btnLoadRootCsv.isDisable =
+            selectedDirectory == null || !usandoCsvParaEstructura
+
+        // 🔹 LOG PARA DEPURACIÓN (opcional)
+        escribeLog("DEBUG updateUIState: usandoCsvParaEstructura=$usandoCsvParaEstructura, btnLoadRootCsv.isDisable=${btnLoadRootCsv.isDisable}")
     }
 
     @FXML
@@ -514,31 +547,140 @@ class RenamerController {
 
     @FXML
     private fun crearEstructuraClick() {
-        val dir = selectedDirectory ?: run {
+        val raiz = selectedDirectory ?: run {
             mostrarAlerta("Advertencia", "Seleccione la carpeta raíz primero.")
             return
         }
 
         if (!chkUsarEstructura.isSelected) {
-            mostrarAlerta("Advertencia", "Active la opción 'Crear estructura de carpetas'.")
+            mostrarAlerta("Advertencia", "Active la opción de estructura.")
             return
         }
 
-        val exito = if (rbEstructuraDefault.isSelected) {
-            crearEstructuraPorDefecto(dir)
-        } else {
-            if (estructuraJsonData != null) {
-                crearEstructuraDesdeJson(dir, estructuraJsonData!!)
-            } else {
-                mostrarAlerta("Error", "No hay estructura JSON cargada.", Alert.AlertType.ERROR)
+        try {
+            // Verificar si estamos en modo múltiple con CSV
+            if (rbRootMultiple.isSelected && rbRootByCsv.isSelected && selectedRootCsvFile == null) {
+                mostrarAlerta("Error", "Debe cargar un archivo CSV para la estructura de carpetas.")
                 return
+            }
+
+            // 🔹 Archivo JSON activo
+            val estructuraFile = if (rbEstructuraDefault.isSelected) {
+                crearArchivoTemporalEstructuraDefault()
+            } else {
+                selectedStructureJson ?: run {
+                    mostrarAlerta("Error", "No hay estructura JSON definida.")
+                    return
+                }
+            }
+
+            // 🔹 Log de inicio
+            escribeLog("=== INICIO CREACIÓN DE ESTRUCTURA ===")
+            escribeLog("Carpeta raíz: ${raiz.absolutePath}")
+            escribeLog("Modo: ${if (rbRootSingle.isSelected) "Una carpeta" else "Múltiples carpetas"}")
+
+            if (rbRootSingle.isSelected) {
+                // ===== UNA SOLA CARPETA =====
+                escribeLog("Creando estructura en carpeta raíz...")
+                CreateStructureService.create(raiz, estructuraFile)
+
+            } else {
+                // ===== VARIAS CARPETAS =====
+                val nombres = obtenerNombresCarpetasSegundoNivel()
+                escribeLog("Nombres de carpetas a crear: ${nombres.joinToString(", ")}")
+
+                nombres.forEachIndexed { index, nombre ->
+                    val carpeta = File(raiz, nombre)
+                    escribeLog("Creando carpeta ${index + 1}/${nombres.size}: $nombre")
+
+                    if (carpeta.mkdirs()) {
+                        escribeLog("✓ Carpeta creada: $nombre")
+                        CreateStructureService.create(carpeta, estructuraFile)
+                    } else if (carpeta.exists()) {
+                        escribeLog("ℹ Carpeta ya existe: $nombre")
+                        CreateStructureService.create(carpeta, estructuraFile)
+                    } else {
+                        throw IOException("No se pudo crear la carpeta: $nombre")
+                    }
+                }
+            }
+
+            mostrarAlerta("Éxito", "Estructura creada correctamente.")
+            escribeLog("=== FIN CREACIÓN DE ESTRUCTURA ===")
+
+        } catch (e: Exception) {
+            val mensajeError = e.message ?: "Error desconocido al crear estructura"
+            mostrarAlerta("Error", mensajeError, Alert.AlertType.ERROR)
+            escribeLog("ERROR creando estructura: $mensajeError")
+            escribeLog("=== FIN CREACIÓN DE ESTRUCTURA CON ERRORES ===")
+        }
+    }
+
+    private fun obtenerNombresCarpetasSegundoNivel(): List<String> {
+        return when {
+            rbRootByNumber.isSelected -> {
+                val base = txtRootBaseName.text.trim().ifEmpty { "Carpeta" }
+                (1..spRootCount.value).map { "${base}_$it" }
+            }
+
+            rbRootByCsv.isSelected -> {
+                if (selectedRootCsvFile == null) {
+                    throw IllegalStateException("Debe cargar primero el CSV de estructura de carpetas")
+                }
+                leerNombresDesdeCsv()
+            }
+
+            else -> emptyList()
+        }
+    }
+
+    private fun leerNombresDesdeCsv(): List<String> {
+
+        val archivo = selectedRootCsvFile
+            ?: throw IllegalStateException("Debe cargar el CSV de estructura.")
+
+        val nombres = mutableListOf<String>()
+
+        archivo.bufferedReader(Charsets.UTF_8).useLines { lines ->
+            lines.drop(1).forEachIndexed { index, line ->
+
+                // Tomar la PRIMERA columna del CSV
+                val columnas = line.split(",", ";", "\t")
+                val nombre = columnas.firstOrNull()?.trim()
+
+                if (!nombre.isNullOrEmpty()) {
+                    nombres.add(nombre)
+                }
             }
         }
 
-        if (exito) {
-            mostrarAlerta("Éxito", "Estructura de carpetas creada correctamente.")
+        if (nombres.isEmpty()) {
+            throw IllegalStateException("El CSV de estructura no contiene nombres válidos.")
         }
+
+        return nombres
     }
+
+
+    private fun crearArchivoTemporalEstructuraDefault(): File {
+
+        val temp = File.createTempFile("estructura_default", ".json")
+        temp.deleteOnExit()
+
+        temp.writeText(
+            when (estructuraDefaultJson) {
+                is JSONArray -> (estructuraDefaultJson as JSONArray).toString(2)
+                is JSONObject -> (estructuraDefaultJson as JSONObject).toString(2)
+                else -> throw IllegalStateException("JSON por defecto inválido")
+            }
+        )
+
+        return temp
+    }
+
+
+
+
 
     private fun crearEstructuraPorDefecto(directorio: File): Boolean {
         return try {
@@ -1055,12 +1197,14 @@ class RenamerController {
             if (selected) {
                 activarModoUnaCarpeta()
             }
+            updateUIState()  // 🔹 Asegurar actualización de UI
         }
 
         rbRootMultiple.selectedProperty().addListener { _, _, selected ->
             if (selected) {
                 activarModoVariasCarpetas()
             }
+            updateUIState()  // 🔹 Asegurar actualización de UI
         }
 
         // Origen por NÚMERO
@@ -1068,6 +1212,7 @@ class RenamerController {
             if (selected) {
                 mostrarSeccionNumero()
             }
+            updateUIState()  // 🔹 Asegurar actualización de UI
         }
 
         // Origen por CSV
@@ -1075,7 +1220,12 @@ class RenamerController {
             if (selected) {
                 mostrarSeccionCsv()
             }
+            updateUIState()  // 🔹 Asegurar actualización de UI
         }
+
+        // 🔹 Listener para cambios en el spinner y campo de texto
+        spRootCount.valueProperty().addListener { _, _, _ -> updateUIState() }
+        txtRootBaseName.textProperty().addListener { _, _, _ -> updateUIState() }
     }
 
 
@@ -1091,6 +1241,9 @@ class RenamerController {
 
         folderNameSection.isVisible = false
         folderNameSection.isManaged = false
+
+        // 🔹 Limpiar archivo CSV seleccionado
+        selectedRootCsvFile = null
     }
 
 
@@ -1114,6 +1267,8 @@ class RenamerController {
 
         folderNameSection.isVisible = false
         folderNameSection.isManaged = false
+
+        updateUIState()
     }
 
     private fun mostrarSeccionCsv() {
@@ -1122,7 +1277,69 @@ class RenamerController {
 
         folderNameSection.isVisible = true
         folderNameSection.isManaged = true
+
+        updateUIState()
     }
+
+    @FXML
+    private fun cargarRootCsvClick() {
+        val stage = btnRenamer.scene.window as Stage
+        val chooser = FileChooser().apply {
+            title = "Seleccionar CSV de nombres de carpetas"
+            extensionFilters.add(
+                FileChooser.ExtensionFilter("Archivos CSV", "*.csv")
+            )
+        }
+
+        selectedRootCsvFile = chooser.showOpenDialog(stage)
+
+        if (selectedRootCsvFile != null) {
+            try {
+                // Leer y mostrar los nombres del CSV
+                val nombres = leerNombresDesdeCsv()
+                if (nombres.isNotEmpty()) {
+                    // 🔹 Actualizar el Label
+                    lblRootCsv.text = selectedRootCsvFile!!.name
+
+                    val mensaje = buildString {
+                        appendLine("CSV cargado correctamente:")
+                        appendLine("Archivo: ${selectedRootCsvFile!!.name}")
+                        appendLine("Total de carpetas: ${nombres.size}")
+                        appendLine("\nPrimeros 5 nombres:")
+                        nombres.take(5).forEachIndexed { index, nombre ->
+                            appendLine("${index + 1}. $nombre")
+                        }
+                        if (nombres.size > 5) {
+                            appendLine("... y ${nombres.size - 5} más")
+                        }
+                    }
+                    mostrarAlerta("CSV Cargado", mensaje)
+                    escribeLog("CSV de estructura cargado: ${selectedRootCsvFile!!.name}")
+                    escribeLog("Nombres encontrados: ${nombres.joinToString(", ")}")
+                } else {
+                    mostrarAlerta("Advertencia", "El CSV no contiene nombres válidos en la primera columna.")
+                    escribeLog("ADVERTENCIA: CSV vacío o sin nombres válidos")
+                    selectedRootCsvFile = null
+                    // 🔹 Limpiar el Label si no hay nombres válidos
+                    lblRootCsv.text = "No se ha cargado archivo"
+                }
+            } catch (e: Exception) {
+                mostrarAlerta("Error", "Error al leer el CSV: ${e.message}")
+                escribeLog("ERROR cargando CSV de estructura: ${e.message}")
+                selectedRootCsvFile = null
+                // 🔹 Limpiar el Label si hay error
+                lblRootCsv.text = "No se ha cargado archivo"
+            }
+        } else {
+            escribeLog("Operación cancelada: No se seleccionó archivo CSV")
+            // 🔹 Limpiar el Label si se cancela
+            lblRootCsv.text = "No se ha cargado archivo"
+        }
+
+        // 🔹 Actualizar UI después de cargar el CSV
+        updateUIState()
+    }
+
 
 
     private fun escribeLog(mensaje: String) {

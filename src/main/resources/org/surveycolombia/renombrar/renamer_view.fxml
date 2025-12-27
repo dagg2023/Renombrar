@@ -85,16 +85,17 @@
 
                             <HBox alignment="CENTER_LEFT" spacing="12">
 
+                                <!-- 🔹 CORREGIDO: Ambos RadioButtons comparten el mismo ToggleGroup -->
                                 <RadioButton fx:id="rbRootSingle"
                                              style="-fx-font-size: 13px;"
                                              selected="true"
                                              text="Una sola carpeta (usar carpeta seleccionada)">
-                           <toggleGroup>
-                              <ToggleGroup fx:id="tgRootMode" />
-                           </toggleGroup></RadioButton>
+                                    <toggleGroup>
+                                        <ToggleGroup fx:id="tgRootMode" />
+                                    </toggleGroup>
+                                </RadioButton>
 
                                 <RadioButton fx:id="rbRootMultiple"
-                                             selected="false"
                                              style="-fx-font-size: 13px;"
                                              text="Varias carpetas"
                                              toggleGroup="$tgRootMode"/>
@@ -104,6 +105,7 @@
                             <Label style="-fx-font-weight: bold;" text="Origen de los nombres:" />
 
                             <HBox fx:id="rootSourceSection" alignment="CENTER_LEFT" spacing="12">
+                                <!-- 🔹 CORREGIDO: Ambos RadioButtons comparten el mismo ToggleGroup -->
                                 <RadioButton fx:id="rbRootByNumber"
                                              selected="true"
                                              text="Generar por número">
@@ -113,7 +115,6 @@
                                 </RadioButton>
 
                                 <RadioButton fx:id="rbRootByCsv"
-                                             selected="false"
                                              text="Cargar desde CSV"
                                              toggleGroup="$tgRootSource"/>
 
@@ -129,8 +130,11 @@
                             </HBox>
 
                             <!-- Opción por CSV -->
-                            <HBox fx:id="folderNameSection"  alignment="CENTER_LEFT" spacing="8" visible="false">
-                                <Button fx:id="btnLoadRootCsv" text="Cargar CSV" />
+                            <!-- 🔹 CORREGIDO: Agregado onAction al botón -->
+                            <HBox fx:id="folderNameSection" alignment="CENTER_LEFT" spacing="8" visible="false">
+                                <Button fx:id="btnLoadRootCsv"
+                                        onAction="#cargarRootCsvClick"
+                                        text="Cargar CSV" />
 
                                 <Label fx:id="lblRootCsv" style="-fx-text-fill: #666;" text="No se ha cargado archivo" />
                             </HBox>
