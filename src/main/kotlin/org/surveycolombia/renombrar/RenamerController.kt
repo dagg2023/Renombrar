@@ -412,8 +412,6 @@ class RenamerController {
         btnLoadRootCsv.isDisable =
             selectedDirectory == null || !usandoCsvParaEstructura
 
-        // 🔹 LOG PARA DEPURACIÓN (opcional)
-        escribeLog("DEBUG updateUIState: usandoCsvParaEstructura=$usandoCsvParaEstructura, btnLoadRootCsv.isDisable=${btnLoadRootCsv.isDisable}")
     }
 
     @FXML
@@ -564,6 +562,37 @@ class RenamerController {
                 return
             }
 
+            // 🔹 Obtener nombres de carpetas
+            val nombres = obtenerNombresCarpetasSegundoNivel()
+
+            // 🔹 Validar nombres vacíos o inválidos
+            val nombresValidos = nombres.filter { it.isNotBlank() && validarNombre(it) }
+            if (nombresValidos.isEmpty()) {
+                mostrarAlerta("Error", "No se encontraron nombres válidos para crear carpetas.")
+                return
+            }
+
+            // 🔹 Verificar duplicados en la lista y carpetas existentes
+            val (nombresUnicos, nombresExistentes) = verificarDuplicadosYExistentes(nombresValidos, raiz)
+
+            if (nombresUnicos.isEmpty()) {
+                mostrarAlerta("Error", "Todos los nombres son duplicados o inválidos.")
+                return
+            }
+
+            // 🔹 Mostrar advertencia si hay carpetas existentes
+            if (nombresExistentes.isNotEmpty()) {
+                val mensajeExistente = buildString {
+                    appendLine("Las siguientes carpetas ya existen en la ubicación seleccionada:")
+                    nombresExistentes.take(5).forEach { appendLine("  • $it") }
+                    if (nombresExistentes.size > 5) {
+                        appendLine("  ... y ${nombresExistentes.size - 5} más")
+                    }
+                    appendLine("\nEstas carpetas NO serán sobrescritas.")
+                }
+                mostrarAlerta("Advertencia - Carpetas Existentes", mensajeExistente, Alert.AlertType.WARNING)
+            }
+
             // 🔹 Archivo JSON activo
             val estructuraFile = if (rbEstructuraDefault.isSelected) {
                 crearArchivoTemporalEstructuraDefault()
@@ -578,6 +607,8 @@ class RenamerController {
             escribeLog("=== INICIO CREACIÓN DE ESTRUCTURA ===")
             escribeLog("Carpeta raíz: ${raiz.absolutePath}")
             escribeLog("Modo: ${if (rbRootSingle.isSelected) "Una carpeta" else "Múltiples carpetas"}")
+            escribeLog("Nombres a procesar: ${nombresUnicos.size}")
+            escribeLog("Carpetas existentes que se omitirán: ${nombresExistentes.size}")
 
             if (rbRootSingle.isSelected) {
                 // ===== UNA SOLA CARPETA =====
@@ -586,23 +617,38 @@ class RenamerController {
 
             } else {
                 // ===== VARIAS CARPETAS =====
-                val nombres = obtenerNombresCarpetasSegundoNivel()
-                escribeLog("Nombres de carpetas a crear: ${nombres.joinToString(", ")}")
+                var creadas = 0
+                var omitidas = 0
 
-                nombres.forEachIndexed { index, nombre ->
+                escribeLog("Nombres de carpetas únicos a crear: ${nombresUnicos.joinToString(", ")}")
+
+                nombresUnicos.forEachIndexed { index, nombre ->
                     val carpeta = File(raiz, nombre)
-                    escribeLog("Creando carpeta ${index + 1}/${nombres.size}: $nombre")
+                    escribeLog("Procesando carpeta ${index + 1}/${nombresUnicos.size}: $nombre")
 
-                    if (carpeta.mkdirs()) {
+                    // Verificar si ya existe antes de intentar crearla
+                    if (carpeta.exists()) {
+                        escribeLog("ℹ Carpeta ya existe, omitiendo: $nombre")
+                        omitidas++
+                    } else if (carpeta.mkdirs()) {
                         escribeLog("✓ Carpeta creada: $nombre")
-                        CreateStructureService.create(carpeta, estructuraFile)
-                    } else if (carpeta.exists()) {
-                        escribeLog("ℹ Carpeta ya existe: $nombre")
-                        CreateStructureService.create(carpeta, estructuraFile)
+                        try {
+                            CreateStructureService.create(carpeta, estructuraFile)
+                            creadas++
+                        } catch (e: Exception) {
+                            escribeLog("✗ Error creando estructura en carpeta '$nombre': ${e.message}")
+                        }
                     } else {
+                        escribeLog("✗ No se pudo crear la carpeta: $nombre")
                         throw IOException("No se pudo crear la carpeta: $nombre")
                     }
                 }
+
+                // Resumen
+                escribeLog("=== RESUMEN CREACIÓN ===")
+                escribeLog("Carpetas creadas: $creadas")
+                escribeLog("Carpetas omitidas (ya existían): $omitidas")
+                escribeLog("Total procesado: ${nombresUnicos.size}")
             }
 
             mostrarAlerta("Éxito", "Estructura creada correctamente.")
@@ -635,27 +681,104 @@ class RenamerController {
     }
 
     private fun leerNombresDesdeCsv(): List<String> {
-
         val archivo = selectedRootCsvFile
             ?: throw IllegalStateException("Debe cargar el CSV de estructura.")
 
         val nombres = mutableListOf<String>()
+        val nombresSet = mutableSetOf<String>()
+        val nombresDuplicados = mutableListOf<String>()
 
-        archivo.bufferedReader(Charsets.UTF_8).useLines { lines ->
-            lines.drop(1).forEachIndexed { index, line ->
+        archivo.bufferedReader(Charsets.UTF_8).use { reader ->
+            // Leer primera línea para detectar separador
+            val primeraLinea = reader.readLine() ?: return emptyList()
+            val separador = detectSeparator(primeraLinea)
 
-                // Tomar la PRIMERA columna del CSV
-                val columnas = line.split(",", ";", "\t")
-                val nombre = columnas.firstOrNull()?.trim()
+            // Procesar la primera línea si tiene datos
+            if (primeraLinea.isNotEmpty()) {
+                try {
+                    val columnas = splitCsvLine(primeraLinea, separador).map { it.trim().trim('"', '\'') }
+                    val nombre = columnas.firstOrNull()
+                    if (!nombre.isNullOrEmpty() && validarNombre(nombre)) {
+                        nombres.add(nombre)
+                        nombresSet.add(nombre)
+                    }
+                } catch (e: Exception) {
+                    // Intentar método simple como fallback
+                    try {
+                        val columnas = primeraLinea.split(separador).map { it.trim().trim('"', '\'') }
+                        val nombre = columnas.firstOrNull()
+                        if (!nombre.isNullOrEmpty() && validarNombre(nombre)) {
+                            nombres.add(nombre)
+                            nombresSet.add(nombre)
+                        }
+                    } catch (e2: Exception) {
+                        escribeLog("ERROR procesando primera línea del CSV: ${e2.message}")
+                    }
+                }
+            }
 
-                if (!nombre.isNullOrEmpty()) {
-                    nombres.add(nombre)
+            // Procesar el resto de líneas
+            var lineaActual: String?
+            var lineaNumero = 1
+            while (reader.readLine().also { lineaActual = it } != null) {
+                lineaNumero++
+                val line = lineaActual!!.trim()
+                if (line.isEmpty()) {
+                    continue
+                }
+
+                try {
+                    val columnas = splitCsvLine(line, separador).map { it.trim().trim('"', '\'') }
+                    val nombre = columnas.firstOrNull()
+
+                    if (!nombre.isNullOrEmpty()) {
+                        if (!validarNombre(nombre)) {
+                            escribeLog("ADVERTENCIA línea $lineaNumero: Nombre inválido '$nombre' - se omitirá")
+                        } else if (nombresSet.contains(nombre)) {
+                            nombresDuplicados.add(nombre)
+                            escribeLog("ADVERTENCIA: Nombre duplicado en CSV (línea $lineaNumero): '$nombre'")
+                        } else {
+                            nombres.add(nombre)
+                            nombresSet.add(nombre)
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Fallback: intentar con split simple
+                    try {
+                        val columnas = line.split(separador).map { it.trim().trim('"', '\'') }
+                        val nombre = columnas.firstOrNull()
+
+                        if (!nombre.isNullOrEmpty() && validarNombre(nombre)) {
+                            if (nombresSet.contains(nombre)) {
+                                nombresDuplicados.add(nombre)
+                                escribeLog("ADVERTENCIA: Nombre duplicado en CSV (línea $lineaNumero): '$nombre'")
+                            } else {
+                                nombres.add(nombre)
+                                nombresSet.add(nombre)
+                            }
+                        }
+                    } catch (e2: Exception) {
+                        escribeLog("ERROR procesando línea $lineaNumero del CSV: ${e2.message}")
+                    }
                 }
             }
         }
 
         if (nombres.isEmpty()) {
             throw IllegalStateException("El CSV de estructura no contiene nombres válidos.")
+        }
+
+        // Si hay duplicados, mostrar alerta
+        if (nombresDuplicados.isNotEmpty()) {
+            val mensaje = buildString {
+                appendLine("Se encontraron nombres duplicados en el CSV:")
+                nombresDuplicados.take(10).forEach { appendLine("  • $it") }
+                if (nombresDuplicados.size > 10) {
+                    appendLine("  ... y ${nombresDuplicados.size - 10} más")
+                }
+                appendLine("\nSe procesarán únicamente las primeras ocurrencias.")
+            }
+            mostrarAlerta("Advertencia - Nombres Duplicados", mensaje, Alert.AlertType.WARNING)
         }
 
         return nombres
@@ -862,22 +985,57 @@ class RenamerController {
             archivo.bufferedReader(Charsets.UTF_8).use {
                 val line = it.readLine() ?: return null
                 val sep = detectSeparator(line)
-                Pair(line.split(sep).map { h -> h.trim() }, sep)
+                val columnas = splitCsvLine(line, sep)
+                Pair(columnas.map { h -> h.trim().trim('"', '\'') }, sep)
             }
         } catch (e: Exception) {
-            null
+            // Intentar fallback con detección simple
+            try {
+                archivo.bufferedReader(Charsets.UTF_8).use {
+                    val line = it.readLine() ?: return null
+                    val sep = detectSeparator(line)
+                    val columnas = line.split(sep).map { h -> h.trim().trim('"', '\'') }
+                    Pair(columnas, sep)
+                }
+            } catch (e2: Exception) {
+                null
+            }
         }
     }
 
     private fun detectSeparator(line: String): String {
+        // Contar ocurrencias de cada separador
         val semicolon = line.count { it == ';' }
         val comma = line.count { it == ',' }
         val tab = line.count { it == '\t' }
 
-        return when {
-            semicolon > comma && semicolon > tab -> ";"
-            tab > comma && tab > semicolon -> "\t"
-            else -> ","
+        // Si hay más punto y coma que coma, usar punto y coma
+        if (semicolon > comma && semicolon > tab) {
+            return ";"
+        }
+        // Si hay más tabuladores, usar tabulador
+        else if (tab > comma && tab > semicolon) {
+            return "\t"
+        }
+        // Si hay igualdad entre punto y coma y coma, verificar contexto
+        else if (semicolon == comma && semicolon > 0) {
+            // Si hay comas dentro de comillas, usar punto y coma
+            if (line.contains("\"")) {
+                val hasCommaInQuotes = line.contains("\".*?,".toRegex())
+                val hasSemicolonInQuotes = line.contains("\".*?;".toRegex())
+
+                if (hasCommaInQuotes && !hasSemicolonInQuotes) {
+                    return ";"
+                } else if (hasSemicolonInQuotes && !hasCommaInQuotes) {
+                    return ","
+                }
+            }
+            // Por defecto usar punto y coma (más común en algunos formatos)
+            return ";"
+        }
+        // Por defecto usar coma
+        else {
+            return ","
         }
     }
 
@@ -945,28 +1103,56 @@ class RenamerController {
         val indexNew = header.indexOf(newNameColumn)
 
         if (indexOld == -1 || indexNew == -1) {
-            escribeLog("ERROR: Columnas no encontradas en CSV")
+            mostrarAlerta("Error", "Columnas no encontradas en el CSV.\nColumnas disponibles: ${header.joinToString(", ")}")
+            escribeLog("ERROR: Columnas no encontradas en CSV. Buscadas: '$oldNameColumn', '$newNameColumn'. Encontradas: ${header.joinToString(", ")}")
             return
         }
 
         nameMappings.clear()
         var lineCount = 0
+        var errorCount = 0
 
         selectedCsvFile!!.bufferedReader(Charsets.UTF_8).useLines { lines ->
             lines.drop(1).forEach { line ->
                 if (line.isBlank()) return@forEach
-                val valores = line.split(sep).map { it.trim() }
                 lineCount++
 
-                if (valores.size > maxOf(indexOld, indexNew)) {
-                    nameMappings[valores[indexOld]] = valores[indexNew]
-                } else {
-                    escribeLog("ADVERTENCIA: Línea $lineCount tiene menos columnas de las esperadas")
+                try {
+                    // Usar el método robusto para dividir la línea
+                    val valores = splitCsvLine(line, sep).map {
+                        it.trim().trim('"', '\'')
+                    }
+
+                    if (valores.size > maxOf(indexOld, indexNew)) {
+                        val oldName = valores[indexOld]
+                        val newName = valores[indexNew]
+
+                        // Validar que ambos nombres no estén vacíos
+                        if (oldName.isNotBlank() && newName.isNotBlank()) {
+                            nameMappings[oldName] = newName
+                        } else {
+                            escribeLog("ADVERTENCIA: Línea $lineCount tiene nombres vacíos - Antiguo: '$oldName', Nuevo: '$newName'")
+                        }
+                    } else {
+                        escribeLog("ADVERTENCIA: Línea $lineCount tiene menos columnas de las esperadas. Esperadas al menos ${maxOf(indexOld, indexNew) + 1}, encontradas: ${valores.size}")
+                        errorCount++
+                    }
+                } catch (e: Exception) {
+                    escribeLog("ERROR en línea $lineCount: ${e.message}")
+                    errorCount++
                 }
             }
         }
 
         escribeLog("Total de líneas procesadas en CSV: $lineCount")
+        escribeLog("Total de mapeos cargados: ${nameMappings.size}")
+
+        if (errorCount > 0) {
+            mostrarAlerta("Advertencia",
+                "Se encontraron $errorCount errores al procesar el CSV.\n" +
+                        "Verifique el formato del archivo (puede usar coma ',' o punto y coma ';' como separador).\n" +
+                        "Total de mapeos exitosos: ${nameMappings.size}")
+        }
     }
 
     private fun recorrerYRenombrarCarpetas(directory: File): ResultadoRenombrado {
@@ -1186,7 +1372,37 @@ class RenamerController {
     }
 
     private fun validarNombre(nombre: String): Boolean {
+        if (nombre.isBlank()) return false
+
+        // Caracteres prohibidos en nombres de archivos/carpetas
         val caracteresProhibidos = setOf('/', '\\', ':', '*', '?', '"', '<', '>', '|')
+
+        // Validar longitud (Windows tiene límite de 260 caracteres para ruta completa)
+        if (nombre.length > 255) {
+            escribeLog("ADVERTENCIA: Nombre demasiado largo (>255): '$nombre'")
+            return false
+        }
+
+        // No permitir nombres reservados de Windows
+        val nombresReservados = listOf(
+            "CON", "PRN", "AUX", "NUL",
+            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
+        )
+
+        val nombreUpper = nombre.uppercase()
+        if (nombresReservados.contains(nombreUpper)) {
+            escribeLog("ADVERTENCIA: Nombre reservado del sistema: '$nombre'")
+            return false
+        }
+
+        // No permitir que termine con punto o espacio
+        if (nombre.endsWith(".") || nombre.endsWith(" ")) {
+            escribeLog("ADVERTENCIA: Nombre termina con punto o espacio: '$nombre'")
+            return false
+        }
+
+        // Validar caracteres individuales
         return !nombre.any { it in caracteresProhibidos }
     }
 
@@ -1298,24 +1514,43 @@ class RenamerController {
                 // Leer y mostrar los nombres del CSV
                 val nombres = leerNombresDesdeCsv()
                 if (nombres.isNotEmpty()) {
+                    // 🔹 Validar nombres
+                    val nombresValidos = nombres.filter { it.isNotBlank() && validarNombre(it) }
+                    val nombresInvalidos = nombres.filterNot { it.isNotBlank() && validarNombre(it) }
+
                     // 🔹 Actualizar el Label
                     lblRootCsv.text = selectedRootCsvFile!!.name
 
                     val mensaje = buildString {
                         appendLine("CSV cargado correctamente:")
                         appendLine("Archivo: ${selectedRootCsvFile!!.name}")
-                        appendLine("Total de carpetas: ${nombres.size}")
-                        appendLine("\nPrimeros 5 nombres:")
-                        nombres.take(5).forEachIndexed { index, nombre ->
+                        appendLine("Total de nombres leídos: ${nombres.size}")
+                        appendLine("Nombres válidos: ${nombresValidos.size}")
+
+                        if (nombresInvalidos.isNotEmpty()) {
+                            appendLine("Nombres inválidos: ${nombresInvalidos.size}")
+                            appendLine("\nPrimeros 3 nombres inválidos:")
+                            nombresInvalidos.take(3).forEach { appendLine("  • $it") }
+                            if (nombresInvalidos.size > 3) {
+                                appendLine("  ... y ${nombresInvalidos.size - 3} más")
+                            }
+                        }
+
+                        appendLine("\nPrimeros 5 nombres válidos:")
+                        nombresValidos.take(5).forEachIndexed { index, nombre ->
                             appendLine("${index + 1}. $nombre")
                         }
-                        if (nombres.size > 5) {
-                            appendLine("... y ${nombres.size - 5} más")
+                        if (nombresValidos.size > 5) {
+                            appendLine("... y ${nombresValidos.size - 5} más")
+                        }
+
+                        if (nombresInvalidos.isNotEmpty()) {
+                            appendLine("\n⚠ Los nombres inválidos serán omitidos al crear la estructura.")
                         }
                     }
                     mostrarAlerta("CSV Cargado", mensaje)
                     escribeLog("CSV de estructura cargado: ${selectedRootCsvFile!!.name}")
-                    escribeLog("Nombres encontrados: ${nombres.joinToString(", ")}")
+                    escribeLog("Nombres válidos encontrados: ${nombresValidos.joinToString(", ")}")
                 } else {
                     mostrarAlerta("Advertencia", "El CSV no contiene nombres válidos en la primera columna.")
                     escribeLog("ADVERTENCIA: CSV vacío o sin nombres válidos")
@@ -1338,6 +1573,81 @@ class RenamerController {
 
         // 🔹 Actualizar UI después de cargar el CSV
         updateUIState()
+    }
+
+    private fun verificarDuplicadosYExistentes(nombres: List<String>, carpetaRaiz: File): Pair<List<String>, List<String>> {
+        val nombresUnicos = mutableListOf<String>()
+        val nombresDuplicados = mutableListOf<String>()
+        val nombresExistentes = mutableListOf<String>()
+        val nombresVistos = mutableSetOf<String>()
+
+        for (nombre in nombres) {
+            // Verificar si el nombre ya existe en la carpeta raíz
+            val carpeta = File(carpetaRaiz, nombre)
+            if (carpeta.exists()) {
+                nombresExistentes.add(nombre)
+                escribeLog("ADVERTENCIA: La carpeta '$nombre' ya existe en la carpeta raíz")
+            }
+
+            // Verificar duplicados en la lista de nombres
+            if (nombresVistos.contains(nombre)) {
+                nombresDuplicados.add(nombre)
+                escribeLog("ADVERTENCIA: Nombre duplicado encontrado: '$nombre'")
+            } else {
+                nombresVistos.add(nombre)
+                nombresUnicos.add(nombre)
+            }
+        }
+
+        return Pair(nombresUnicos, nombresExistentes)
+    }
+
+    private fun splitCsvLine(line: String, separator: String): List<String> {
+        val result = mutableListOf<String>()
+        var current = StringBuilder()
+        var inQuotes = false
+        var quoteChar: Char? = null
+
+        var i = 0
+        while (i < line.length) {
+            val c = line[i]
+
+            // Manejar comillas
+            if ((c == '"' || c == '\'') && (i == 0 || line[i-1] != '\\')) {
+                if (inQuotes) {
+                    if (quoteChar == c) {
+                        // Verificar si es una comilla escapada (dos comillas seguidas)
+                        if (i + 1 < line.length && line[i+1] == c) {
+                            current.append(c)
+                            i++ // Saltar la comilla adicional
+                        } else {
+                            inQuotes = false
+                            quoteChar = null
+                        }
+                    } else {
+                        current.append(c)
+                    }
+                } else {
+                    inQuotes = true
+                    quoteChar = c
+                }
+            }
+            // Manejar separador
+            else if (!inQuotes && i + separator.length <= line.length &&
+                line.substring(i, i + separator.length) == separator) {
+                result.add(current.toString())
+                current = StringBuilder()
+                i += separator.length - 1 // -1 porque el for incrementará i
+            }
+            // Manejar caracter normal
+            else {
+                current.append(c)
+            }
+            i++
+        }
+
+        result.add(current.toString())
+        return result
     }
 
 
